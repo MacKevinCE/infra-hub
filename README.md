@@ -1,4 +1,4 @@
-# infra-hub — TUI para b2c, gsync y jcloud
+# infra-hub v1.1.0 — TUI para b2c, gsync y jcloud
 
 Interfaz de consola interactiva (TUI) que centraliza el acceso a las tres herramientas del ecosistema de infraestructura personal. Navegación con flechas, formularios guiados, sin necesidad de recordar comandos ni flags.
 
@@ -66,6 +66,7 @@ Navegá con ↑/↓, seleccioná con Enter, volvé con `q` o ESC.
 |--------|-------------|
 | upload | Subir archivo o directorio. Pide el path y tamaño de chunk opcional. |
 | download | Bajar por Index ID. Vacío = usa el canal configurado. |
+| delete | Eliminar el índice y todos los chunks asociados (cascade delete). |
 
 ### gsync
 

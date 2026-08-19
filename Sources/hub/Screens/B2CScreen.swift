@@ -18,6 +18,7 @@ final class B2CScreen {
         let items: [MenuItem] = [
             MenuItem("upload",   hint: "upload file or directory"),
             MenuItem("download", hint: "download by index ID"),
+            MenuItem("delete",   hint: "delete index + all chunks"),
         ]
         let menu = Menu(terminal: terminal, title: "b2c v\(version)", items: items)
 
@@ -27,6 +28,7 @@ final class B2CScreen {
             switch choice {
             case 0: upload()
             case 1: download()
+            case 2: delete()
             default: break
             }
         }
@@ -47,6 +49,18 @@ final class B2CScreen {
         var args = ["upload", values[0]]
         if !values[1].isEmpty { args += ["-k", values[1]] }
         runner.run(binary: bin, arguments: args)
+    }
+
+    private func delete() {
+        let form = Form(
+            terminal: terminal,
+            title: "b2c delete",
+            fields: [
+                FormField("index ID", placeholder: "deletes index + all chunks"),
+            ]
+        )
+        guard let values = form.run() else { return }
+        runner.run(binary: bin, arguments: ["delete", values[0]])
     }
 
     private func download() {
