@@ -14,16 +14,12 @@ final class B2CScreen {
     }
 
     func run() {
+        let version = binaryVersion(bin)
         let items: [MenuItem] = [
-            MenuItem("upload",          hint: "upload file or directory"),
-            MenuItem("download",        hint: "download by index ID"),
-            MenuItem("delete",          hint: "delete by index ID"),
-            MenuItem("channel create",  hint: "create a new channel"),
-            MenuItem("channel set",     hint: "set active channel"),
-            MenuItem("channel show",    hint: "show current channel"),
-            MenuItem("channel clear",   hint: "clear channel"),
+            MenuItem("upload",   hint: "upload file or directory"),
+            MenuItem("download", hint: "download by index ID"),
         ]
-        let menu = Menu(terminal: terminal, title: "b2c", items: items)
+        let menu = Menu(terminal: terminal, title: "b2c v\(version)", items: items)
 
         while true {
             guard let choice = menu.run() else { return }
@@ -31,11 +27,6 @@ final class B2CScreen {
             switch choice {
             case 0: upload()
             case 1: download()
-            case 2: delete()
-            case 3: runner.run(binary: bin, arguments: ["channel", "create"])
-            case 4: channelSet()
-            case 5: runner.run(binary: bin, arguments: ["channel", "show"])
-            case 6: runner.run(binary: bin, arguments: ["channel", "clear"])
             default: break
             }
         }
@@ -72,29 +63,5 @@ final class B2CScreen {
         if !values[0].isEmpty { args.append(values[0]) }
         if !values[1].isEmpty { args += ["-o", values[1]] }
         runner.run(binary: bin, arguments: args)
-    }
-
-    private func delete() {
-        let form = Form(
-            terminal: terminal,
-            title: "b2c delete",
-            fields: [
-                FormField("index ID"),
-            ]
-        )
-        guard let values = form.run() else { return }
-        runner.run(binary: bin, arguments: ["delete", values[0]])
-    }
-
-    private func channelSet() {
-        let form = Form(
-            terminal: terminal,
-            title: "b2c channel set",
-            fields: [
-                FormField("channel ID"),
-            ]
-        )
-        guard let values = form.run() else { return }
-        runner.run(binary: bin, arguments: ["channel", "set", values[0]])
     }
 }

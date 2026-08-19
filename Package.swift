@@ -3,16 +3,8 @@ import PackageDescription
 
 let package = Package(
     name: "infra-hub",
-    platforms: [
-        .macOS(.v13)
-    ],
-    targets: [
-        .executableTarget(
-            name: "hub",
-            path: "Sources/hub",
-            swiftSettings: [
-                .unsafeFlags(["-strict-concurrency=minimal"])
-            ]
-        )
-    ]
+	platforms: [.macOS(.v13)],
+	targets: [
+		.executableTarget(name: "hub", path: "Sources")
+	]
 )

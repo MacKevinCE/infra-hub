@@ -23,11 +23,15 @@ final class Runner {
         terminal.clearScreen()
 
         // Header
+        let cols = terminal.size().cols
+        let sepWidth = max(10, min(cols - 2, 80))
         terminal.write(ANSI.bold + ANSI.fgCyan)
         let cmd = ([binary] + arguments).joined(separator: " ")
-        terminal.writeln("  Running: \(cmd)")
+        let cmdLine = "  Running: \(cmd)"
+        let displayCmd = cmdLine.count > cols - 1 ? String(cmdLine.prefix(cols - 2)) + "…" : cmdLine
+        terminal.writeln(displayCmd)
         terminal.write(ANSI.reset)
-        terminal.writeln(String(repeating: "─", count: min(cmd.count + 12, 72)))
+        terminal.writeln(String(repeating: "─", count: sepWidth))
         terminal.writeln()
 
         let process = Process()
@@ -86,7 +90,7 @@ final class Runner {
 
         let code = process.terminationStatus
         terminal.writeln()
-        terminal.writeln(String(repeating: "─", count: 40))
+        terminal.writeln(String(repeating: "─", count: sepWidth))
 
         if code != 0 {
             terminal.write(ANSI.fgRed + ANSI.bold)

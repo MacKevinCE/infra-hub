@@ -15,10 +15,10 @@ final class MainScreen {
         let items: [MenuItem] = [
             MenuItem("b2c",    hint: "blob store"),
             MenuItem("gsync",  hint: "git sync"),
-            MenuItem("jcloud", hint: "j document cloud"),
+            MenuItem("jcloud", hint: "document cloud"),
             MenuItem("Quit"),
         ]
-        let menu = Menu(terminal: terminal, title: "infra-hub", items: items)
+        let menu = Menu(terminal: terminal, title: "infra-hub v\(hubVersion)", items: items)
 
         while true {
             guard let choice = menu.run() else { break }

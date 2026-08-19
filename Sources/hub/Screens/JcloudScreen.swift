@@ -28,7 +28,8 @@ final class JcloudScreen {
             MenuItem("publish",          hint: "publish tools"),
             MenuItem("update",           hint: "update jcloud"),
         ]
-        let menu = Menu(terminal: terminal, title: "jcloud", items: items)
+        let version = binaryVersion(bin)
+        let menu = Menu(terminal: terminal, title: "jcloud v\(version)", items: items)
 
         while true {
             guard let choice = menu.run() else { return }

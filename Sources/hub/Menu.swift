@@ -53,36 +53,56 @@ final class Menu {
     // MARK: Private
 
     private func render(selected: Int) {
+        let cols = terminal.size().cols
+        let sepWidth = max(10, min(cols - 2, 60))
+
         terminal.clearScreen()
 
         // Title bar
         terminal.write(ANSI.bold + ANSI.fgCyan)
         terminal.writeln("  \(title)")
         terminal.write(ANSI.reset)
-        terminal.writeln(String(repeating: "─", count: 40))
+        terminal.writeln(String(repeating: "─", count: sepWidth))
 
         for (i, item) in items.enumerated() {
-            if i == selected {
-                terminal.write(ANSI.bgBlue + ANSI.fgWhite + ANSI.bold)
-                terminal.write("  ▶ \(item.label)")
-                if let hint = item.hint {
-                    terminal.write("  \(ANSI.dim)\(hint)")
+            let isSelected = i == selected
+            let prefix = isSelected ? "  ▶ " : "    "
+            let maxContent = max(4, cols - prefix.count - 1)
+
+            // Build label + hint, truncating to fit
+            var content = item.label
+            if let hint = item.hint {
+                let full = item.label + "  " + hint
+                if full.count <= maxContent {
+                    content = full
+                } else {
+                    let available = maxContent - item.label.count - 3
+                    if available > 3 {
+                        content = item.label + "  " + String(hint.prefix(available)) + "…"
+                    } else if item.label.count > maxContent {
+                        content = String(item.label.prefix(maxContent - 1)) + "…"
+                    }
                 }
+            } else if content.count > maxContent {
+                content = String(content.prefix(maxContent - 1)) + "…"
+            }
+
+            if isSelected {
+                terminal.write(ANSI.bgBlue + ANSI.fgWhite + ANSI.bold)
+                terminal.write(prefix + content)
                 terminal.write(ANSI.reset)
                 terminal.writeln()
             } else {
                 terminal.write(ANSI.reset)
-                terminal.write("    \(item.label)")
-                if let hint = item.hint {
-                    terminal.write("  \(ANSI.dim)\(ANSI.fgWhite)\(hint)\(ANSI.reset)")
-                }
+                terminal.write(prefix + content)
                 terminal.writeln()
             }
         }
 
         terminal.writeln()
+        let footer = "  ↑/↓ navigate   Enter select   q/ESC back"
         terminal.write(ANSI.dim + ANSI.fgWhite)
-        terminal.write("  ↑/↓ navigate   Enter select   q/ESC back")
+        terminal.write(cols >= footer.count + 2 ? footer : "  ↑/↓  Enter  q/ESC")
         terminal.write(ANSI.reset)
         terminal.writeln()
     }

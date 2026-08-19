@@ -87,7 +87,7 @@ final class Terminal {
     }
 
     func writeln(_ s: String = "") {
-        Swift.print(s)
+        Swift.print(s + "\r", terminator: "\n")
         fflush(stdout)
     }
 

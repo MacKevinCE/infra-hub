@@ -76,10 +76,12 @@ final class Form {
 
     private func render(values: [String], current: Int) {
         terminal.clearScreen()
+        let cols = terminal.size().cols
+        let sepWidth = max(10, min(cols - 2, 60))
         terminal.write(ANSI.bold + ANSI.fgCyan)
         terminal.writeln("  \(title)")
         terminal.write(ANSI.reset)
-        terminal.writeln(String(repeating: "─", count: 40))
+        terminal.writeln(String(repeating: "─", count: sepWidth))
         terminal.writeln()
 
         for (i, field) in fields.enumerated() {

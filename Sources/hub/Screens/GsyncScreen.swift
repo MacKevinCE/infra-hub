@@ -22,7 +22,8 @@ final class GsyncScreen {
             MenuItem("snapshot", hint: "snapshot [manifestId]"),
             MenuItem("sync",     hint: "sync [snapshotId]"),
         ]
-        let menu = Menu(terminal: terminal, title: "gsync", items: items)
+        let version = binaryVersion(bin)
+        let menu = Menu(terminal: terminal, title: "gsync v\(version)", items: items)
 
         while true {
             guard let choice = menu.run() else { return }
