@@ -1,0 +1,111 @@
+import Foundation
+
+private let bin = "/usr/local/bin/gsync"
+
+// MARK: - GsyncScreen
+
+final class GsyncScreen {
+    private let terminal: Terminal
+    private let runner: Runner
+
+    init(terminal: Terminal, runner: Runner) {
+        self.terminal = terminal
+        self.runner   = runner
+    }
+
+    func run() {
+        let items: [MenuItem] = [
+            MenuItem("push",     hint: "push commits [range]"),
+            MenuItem("pull",     hint: "pull by index ID"),
+            MenuItem("mark",     hint: "mark a commit"),
+            MenuItem("status",   hint: "show sync status"),
+            MenuItem("snapshot", hint: "snapshot [manifestId]"),
+            MenuItem("sync",     hint: "sync [snapshotId]"),
+        ]
+        let menu = Menu(terminal: terminal, title: "gsync", items: items)
+
+        while true {
+            guard let choice = menu.run() else { return }
+
+            switch choice {
+            case 0: push()
+            case 1: pull()
+            case 2: mark()
+            case 3: runner.run(binary: bin, arguments: ["status"])
+            case 4: snapshot()
+            case 5: sync()
+            default: break
+            }
+        }
+    }
+
+    // MARK: - Command builders
+
+    private func push() {
+        let form = Form(
+            terminal: terminal,
+            title: "gsync push",
+            fields: [
+                FormField("range", placeholder: "e.g. HEAD~3..HEAD or leave empty", required: false),
+            ]
+        )
+        guard let values = form.run() else { return }
+        var args = ["push"]
+        if !values[0].isEmpty { args.append(values[0]) }
+        runner.run(binary: bin, arguments: args)
+    }
+
+    private func pull() {
+        let form = Form(
+            terminal: terminal,
+            title: "gsync pull",
+            fields: [
+                FormField("index ID", placeholder: "leave empty for latest", required: false),
+            ]
+        )
+        guard let values = form.run() else { return }
+        var args = ["pull"]
+        if !values[0].isEmpty { args.append(values[0]) }
+        runner.run(binary: bin, arguments: args)
+    }
+
+    private func mark() {
+        let form = Form(
+            terminal: terminal,
+            title: "gsync mark",
+            fields: [
+                FormField("commit hash or ref"),
+            ]
+        )
+        guard let values = form.run() else { return }
+        runner.run(binary: bin, arguments: ["mark", values[0]])
+    }
+
+    private func snapshot() {
+        let form = Form(
+            terminal: terminal,
+            title: "gsync snapshot",
+            fields: [
+                FormField("manifest ID", placeholder: "leave empty for latest", required: false),
+            ]
+        )
+        guard let values = form.run() else { return }
+        var args = ["snapshot"]
+        if !values[0].isEmpty { args.append(values[0]) }
+        runner.run(binary: bin, arguments: args)
+    }
+
+    private func sync() {
+        let form = Form(
+            terminal: terminal,
+            title: "gsync sync",
+            fields: [
+                FormField("snapshot ID", placeholder: "leave empty for latest", required: false),
+            ]
+        )
+        guard let values = form.run() else { return }
+        var args = ["sync"]
+        if !values[0].isEmpty { args.append(values[0]) }
+        runner.run(binary: bin, arguments: args)
+    }
+}
