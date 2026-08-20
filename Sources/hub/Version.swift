@@ -14,5 +14,5 @@ func binaryVersion(_ path: String) -> String {
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
     let raw = String(data: data, encoding: .utf8) ?? ""
     // Extract just the version number e.g. "b2c 1.4.0" -> "1.4.0"
-    return raw.split(separator: " ").last.map(String.init) ?? raw.trimmingCharacters(in: .whitespacesAndNewlines)
+	return (raw.split(separator: " ").last.map(String.init) ?? raw).trimmingCharacters(in: .whitespacesAndNewlines)
 }

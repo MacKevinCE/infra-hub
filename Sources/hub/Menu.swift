@@ -103,13 +103,13 @@ final class Menu {
             // Build label + hint, truncating to fit
             var content = item.label
             if let hint = item.hint {
-                let full = item.label + "  " + hint
+                let full = item.label + " - " + hint
                 if full.count <= maxContent {
                     content = full
                 } else {
                     let available = maxContent - item.label.count - 3
                     if available > 3 {
-                        content = item.label + "  " + String(hint.prefix(available)) + "…"
+                        content = item.label + " - " + String(hint.prefix(available)) + "…"
                     } else if item.label.count > maxContent {
                         content = String(item.label.prefix(maxContent - 1)) + "…"
                     }
