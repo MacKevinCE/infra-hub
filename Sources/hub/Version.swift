@@ -1,6 +1,6 @@
 import Foundation
 
-let hubVersion = "1.1.0"
+let hubVersion = "1.2.0"
 
 func binaryVersion(_ path: String) -> String {
     let process = Process()

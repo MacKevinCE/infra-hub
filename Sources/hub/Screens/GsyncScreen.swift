@@ -21,6 +21,7 @@ final class GsyncScreen {
             MenuItem("status",   hint: "show sync status"),
             MenuItem("snapshot", hint: "snapshot [manifestId]"),
             MenuItem("sync",     hint: "sync [snapshotId]"),
+            MenuItem("ignore",   hint: "manage ignore patterns"),
         ]
         let version = binaryVersion(bin)
         let menu = Menu(terminal: terminal, title: "gsync v\(version)", items: items)
@@ -35,6 +36,7 @@ final class GsyncScreen {
             case 3: runner.run(binary: bin, arguments: ["status"])
             case 4: snapshot()
             case 5: sync()
+            case 6: ignore()
             default: break
             }
         }
@@ -94,6 +96,55 @@ final class GsyncScreen {
         var args = ["snapshot"]
         if !values[0].isEmpty { args.append(values[0]) }
         runner.run(binary: bin, arguments: args)
+    }
+
+    private func ignore() {
+        let items: [MenuItem] = [
+            MenuItem("show",   hint: "show current patterns"),
+            MenuItem("add",    hint: "add modified files or pattern"),
+            MenuItem("remove", hint: "remove a pattern"),
+        ]
+        let menu = Menu(terminal: terminal, title: "gsync ignore", items: items)
+
+        while true {
+            guard let choice = menu.run() else { return }
+
+            switch choice {
+            case 0:
+                runner.run(binary: bin, arguments: ["ignore"])
+            case 1:
+                ignoreAdd()
+            case 2:
+                ignoreRemove()
+            default: break
+            }
+        }
+    }
+
+    private func ignoreAdd() {
+        let form = Form(
+            terminal: terminal,
+            title: "gsync ignore add",
+            fields: [
+                FormField("pattern", placeholder: "leave empty to auto-detect modified files", required: false),
+            ]
+        )
+        guard let values = form.run() else { return }
+        var args = ["ignore", "add"]
+        if !values[0].isEmpty { args.append(values[0]) }
+        runner.run(binary: bin, arguments: args)
+    }
+
+    private func ignoreRemove() {
+        let form = Form(
+            terminal: terminal,
+            title: "gsync ignore remove",
+            fields: [
+                FormField("pattern"),
+            ]
+        )
+        guard let values = form.run() else { return }
+        runner.run(binary: bin, arguments: ["ignore", "remove", values[0]])
     }
 
     private func sync() {
