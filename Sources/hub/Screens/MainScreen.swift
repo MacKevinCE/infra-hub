@@ -16,6 +16,7 @@ final class MainScreen {
             MenuItem("b2c",    hint: "blob store"),
             MenuItem("gsync",  hint: "git sync"),
             MenuItem("jcloud", hint: "document cloud"),
+            .separator,
             MenuItem("Quit"),
         ]
         let menu = Menu(terminal: terminal, title: "infra-hub v\(hubVersion)", items: items)
@@ -30,7 +31,7 @@ final class MainScreen {
             default: break // Quit or unknown — exit loop below
             }
 
-            if choice == 3 { break }
+            if choice == 4 { break }
         }
     }
 }

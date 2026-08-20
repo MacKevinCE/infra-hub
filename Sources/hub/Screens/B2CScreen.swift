@@ -18,6 +18,7 @@ final class B2CScreen {
         let items: [MenuItem] = [
             MenuItem("upload",   hint: "upload file or directory"),
             MenuItem("download", hint: "download by index ID"),
+            .separator,
             MenuItem("delete",   hint: "delete index + all chunks"),
         ]
         let menu = Menu(terminal: terminal, title: "b2c v\(version)", items: items)
@@ -28,7 +29,7 @@ final class B2CScreen {
             switch choice {
             case 0: upload()
             case 1: download()
-            case 2: delete()
+            case 3: delete()
             default: break
             }
         }
