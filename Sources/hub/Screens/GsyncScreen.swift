@@ -17,10 +17,13 @@ final class GsyncScreen {
         let items: [MenuItem] = [
             MenuItem("push",     hint: "push commits [range]"),
             MenuItem("pull",     hint: "pull by index ID"),
+            .separator,
             MenuItem("mark",     hint: "mark a commit"),
+            .separator,
             MenuItem("status",   hint: "show sync status"),
             MenuItem("snapshot", hint: "snapshot [manifestId]"),
             MenuItem("sync",     hint: "sync [snapshotId]"),
+            .separator,
             MenuItem("ignore",   hint: "manage ignore patterns"),
         ]
         let version = binaryVersion(bin)
@@ -32,11 +35,11 @@ final class GsyncScreen {
             switch choice {
             case 0: push()
             case 1: pull()
-            case 2: mark()
-            case 3: runner.run(binary: bin, arguments: ["status"])
-            case 4: snapshot()
-            case 5: sync()
-            case 6: ignore()
+            case 3: mark()
+            case 5: runner.run(binary: bin, arguments: ["status"])
+            case 6: snapshot()
+            case 7: sync()
+            case 9: ignore()
             default: break
             }
         }

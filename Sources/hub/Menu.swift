@@ -5,11 +5,21 @@ import Foundation
 struct MenuItem {
     let label: String
     let hint: String?
+    let isSeparator: Bool
 
     init(_ label: String, hint: String? = nil) {
         self.label = label
         self.hint  = hint
+        self.isSeparator = false
     }
+
+    private init(separator: Bool) {
+        self.label = ""
+        self.hint  = nil
+        self.isSeparator = true
+    }
+
+    static let separator = MenuItem(separator: true)
 }
 
 // MARK: - Menu
@@ -37,9 +47,9 @@ final class Menu {
 
             switch key {
             case .up:
-                selected = (selected - 1 + items.count) % items.count
+                selected = prevSelectable(from: selected)
             case .down:
-                selected = (selected + 1) % items.count
+                selected = nextSelectable(from: selected)
             case .enter:
                 return selected
             case .quit, .escape:
@@ -51,6 +61,22 @@ final class Menu {
     }
 
     // MARK: Private
+
+    private func nextSelectable(from index: Int) -> Int {
+        var next = (index + 1) % items.count
+        while items[next].isSeparator {
+            next = (next + 1) % items.count
+        }
+        return next
+    }
+
+    private func prevSelectable(from index: Int) -> Int {
+        var prev = (index - 1 + items.count) % items.count
+        while items[prev].isSeparator {
+            prev = (prev - 1 + items.count) % items.count
+        }
+        return prev
+    }
 
     private func render(selected: Int) {
         let cols = terminal.size().cols
@@ -65,6 +91,11 @@ final class Menu {
         terminal.writeln(String(repeating: "─", count: sepWidth))
 
         for (i, item) in items.enumerated() {
+            if item.isSeparator {
+                terminal.writeln()
+                continue
+            }
+
             let isSelected = i == selected
             let prefix = isSelected ? "  ▶ " : "    "
             let maxContent = max(4, cols - prefix.count - 1)
