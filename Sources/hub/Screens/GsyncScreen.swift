@@ -20,7 +20,7 @@ final class GsyncScreen {
             .separator,
             MenuItem("mark",     hint: "mark a commit")            { self.mark() },
             .separator,
-            MenuItem("status",   hint: "show sync status")         { self.runner.run(binary: bin, arguments: ["status"]) },
+            MenuItem("status",   hint: "show sync status")         { self.status() },
             MenuItem("snapshot", hint: "snapshot [manifestId]")     { self.snapshot() },
             MenuItem("sync",     hint: "sync [snapshotId]")        { self.sync() },
             .separator,
@@ -62,6 +62,10 @@ final class GsyncScreen {
         runner.run(binary: bin, arguments: args)
     }
 
+    private func status() {
+        runner.run(binary: bin, arguments: ["status"])
+    }
+
     private func mark() {
         let form = Form(
             terminal: terminal,
@@ -90,13 +94,17 @@ final class GsyncScreen {
 
     private func ignore() {
         let items: [MenuItem] = [
-            MenuItem("show",   hint: "show current patterns") { self.runner.run(binary: bin, arguments: ["ignore"]) },
+            MenuItem("show",   hint: "show current patterns") { self.ignoreShow() },
             MenuItem("add",    hint: "add modified files or pattern") { self.ignoreAdd() },
             MenuItem("remove", hint: "remove a pattern") { self.ignoreRemove() },
         ]
         let menu = Menu(terminal: terminal, title: "gsync ignore", items: items)
 
         while menu.run() != nil {}
+    }
+
+    private func ignoreShow() {
+        runner.run(binary: bin, arguments: ["ignore"])
     }
 
     private func ignoreAdd() {

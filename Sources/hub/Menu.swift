@@ -66,7 +66,7 @@ final class Menu {
                 if let action = items[selected].action {
                     action()
                 } else {
-                    return selected
+                    return nil
                 }
             case .quit, .escape:
                 return nil

@@ -14,13 +14,13 @@ final class B2CScreen {
     }
 
     func run() {
-        let version = binaryVersion(bin)
         let items: [MenuItem] = [
             MenuItem("upload",   hint: "upload file or directory")  { self.upload() },
             MenuItem("download", hint: "download by index ID")      { self.download() },
             .separator,
             MenuItem("delete",   hint: "delete index + all chunks") { self.delete() },
         ]
+		let version = binaryVersion(bin)
         let menu = Menu(terminal: terminal, title: "b2c v\(version)", items: items)
 
         while menu.run() != nil {}
