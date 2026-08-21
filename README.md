@@ -9,6 +9,7 @@ Interfaz de consola interactiva (TUI) que centraliza el acceso a las tres herram
 - **[b2c](../bin2text-cloud/)** — almacenamiento binario en la nube
 - **[gsync](../gsync/)** — sincronización de repositorios git entre máquinas
 - **[jcloud](../jcloud/)** — gestión de documentos y canales en la nube
+- **[seed](../seed/)** — distribución de binarios entre máquinas
 
 No reemplaza a ninguna herramienta: las invoca como subprocesos y muestra el output en tiempo real. El objetivo es eliminar la necesidad de recordar subcomandos y flags.
 
@@ -16,7 +17,7 @@ No reemplaza a ninguna herramienta: las invoca como subprocesos y muestra el out
 
 - macOS 13 (Ventura) o superior
 - Swift 5.9 o superior (incluido con Xcode 15+)
-- `b2c`, `gsync` y `jcloud` instalados en el PATH
+- `b2c`, `gsync`, `jcloud` y `seed` instalados en el PATH
 
 ## Compilación
 
@@ -94,13 +95,19 @@ Navegá con ↑/↓, seleccioná con Enter, volvé con `q`, ESC o seleccionando 
 | Opción | Descripción |
 |--------|-------------|
 | channel | Submenú: create, set, show, clear, slot-get, slot-set. |
-| publish | Publicar binarios al canal. |
-| update | Descargar e instalar actualizaciones desde el canal. |
 | backup | Exportar datos del canal a archivo o stdout. |
 | restore | Importar datos del canal desde archivo. |
 | doc | Submenú: create, read, update, delete. |
 
 Los submenús de jcloud agrupan operaciones relacionadas y muestran "Back" para volver al menú padre.
+
+### seed
+
+| Opción | Descripción |
+|--------|-------------|
+| publish | Publicar binarios al canal. |
+| update | Descargar e instalar actualizaciones desde el canal. |
+| replicate | Bootstrap completo para nueva máquina. |
 
 ## Estructura del proyecto
 
@@ -122,7 +129,8 @@ infra-hub/
             ├── MainScreen.swift    Menú principal
             ├── B2CScreen.swift     Pantallas de b2c
             ├── GsyncScreen.swift   Pantallas de gsync (con submenú ignore)
-            └── JcloudScreen.swift  Pantallas de jcloud (con submenús channel y doc)
+            ├── JcloudScreen.swift  Pantallas de jcloud (con submenús channel y doc)
+            └── SeedScreen.swift   Pantallas de seed (publish, update, replicate)
 ```
 
 ### Arquitectura
