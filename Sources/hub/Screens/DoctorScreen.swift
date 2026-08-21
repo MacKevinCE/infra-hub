@@ -9,12 +9,23 @@ final class DoctorScreen {
         self.terminal = terminal
     }
 
+    /// TUI mode: runs inside alt screen, waits for key
     func run() {
         terminal.suspendRawMode()
         terminal.clearScreen()
+        printDiagnostics()
+        print(ANSI.dim + "  Press any key to return to menu…" + ANSI.reset)
+        terminal.resumeRawMode()
+        _ = terminal.readKey()
+    }
 
-        let cols = terminal.size().cols
-        let sepWidth = max(10, min(cols - 2, 60))
+    /// CLI mode: runs directly in normal terminal
+    func runCLI() {
+        printDiagnostics()
+    }
+
+    private func printDiagnostics() {
+        let sepWidth = 50
 
         print(ANSI.bold + ANSI.fgCyan + "  hub doctor" + ANSI.reset)
         print(String(repeating: "─", count: sepWidth))
@@ -79,10 +90,6 @@ final class DoctorScreen {
             print("  \(ANSI.fgRed + ANSI.bold)Some tools missing.\(ANSI.reset)")
         }
         print()
-        print(ANSI.dim + "  Press any key to return to menu…" + ANSI.reset)
-
-        terminal.resumeRawMode()
-        _ = terminal.readKey()
     }
 
     // MARK: - Helpers
