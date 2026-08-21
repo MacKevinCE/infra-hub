@@ -19,6 +19,7 @@ final class B2CScreen {
             MenuItem("download", hint: "download by index ID")      { self.download() },
             .separator,
             MenuItem("list",     hint: "show upload history")        { self.list() },
+            MenuItem("info",     hint: "view index metadata")       { self.info() },
             MenuItem("delete",   hint: "delete index + all chunks") { self.delete() },
             .separator,
             .quit("Back")
@@ -48,6 +49,18 @@ final class B2CScreen {
 
     private func list() {
         runner.run(binary: bin, arguments: ["list"])
+    }
+
+    private func info() {
+        let form = Form(
+            terminal: terminal,
+            title: "b2c info",
+            fields: [
+                FormField("index ID"),
+            ]
+        )
+        guard let values = form.run() else { return }
+        runner.run(binary: bin, arguments: ["info", values[0]])
     }
 
     private func delete() {

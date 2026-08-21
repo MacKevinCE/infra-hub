@@ -19,6 +19,8 @@ final class JcloudScreen {
             .separator,
             MenuItem("publish", hint: "publish tools")   { self.publish() },
             MenuItem("update",  hint: "update jcloud")   { self.update() },
+            MenuItem("backup",  hint: "export channel data") { self.backup() },
+            MenuItem("restore", hint: "import channel data") { self.restore() },
             .separator,
             MenuItem("doc",     hint: "manage document") { self.doc() },
             .separator,
@@ -113,6 +115,32 @@ final class JcloudScreen {
     
     private func update() {
         runner.run(binary: bin, arguments: ["update"])
+    }
+
+    private func backup() {
+        let form = Form(
+            terminal: terminal,
+            title: "jcloud backup",
+            fields: [
+                FormField("output file", placeholder: "leave empty for stdout", required: false),
+            ]
+        )
+        guard let values = form.run() else { return }
+        var args = ["backup"]
+        if !values[0].isEmpty { args.append(values[0]) }
+        runner.run(binary: bin, arguments: args)
+    }
+
+    private func restore() {
+        let form = Form(
+            terminal: terminal,
+            title: "jcloud restore",
+            fields: [
+                FormField("file path"),
+            ]
+        )
+        guard let values = form.run() else { return }
+        runner.run(binary: bin, arguments: ["restore", values[0]])
     }
 
     private func doc() {

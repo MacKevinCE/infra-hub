@@ -1,4 +1,4 @@
-# infra-hub v1.3.0 — TUI para b2c, gsync y jcloud
+# infra-hub v1.4.0 — TUI para b2c, gsync y jcloud
 
 Interfaz de consola interactiva (TUI) que centraliza el acceso a las tres herramientas del ecosistema de infraestructura personal. Navegación con flechas, formularios guiados, sin necesidad de recordar comandos ni flags.
 
@@ -48,7 +48,7 @@ hub
 Ejecutar `hub` sin argumentos abre el menú principal:
 
 ```
-  infra-hub v1.3.0
+  infra-hub v1.4.0
 ────────────────────────────────────────
   ▶ b2c    - blob store
     gsync  - git sync
@@ -70,6 +70,7 @@ Navegá con ↑/↓, seleccioná con Enter, volvé con `q`, ESC o seleccionando 
 | upload | Subir archivo o directorio. Pide el path y tamaño de chunk opcional. |
 | download | Bajar por Index ID. Vacío = usa el canal configurado. |
 | list | Ver historial local de uploads. |
+| info | Ver metadatos del índice (nombre, partes, encriptación, checksum). |
 | delete | Eliminar el índice y todos los chunks asociados (cascade delete). |
 
 ### gsync
@@ -81,7 +82,7 @@ Navegá con ↑/↓, seleccioná con Enter, volvé con `q`, ESC o seleccionando 
 | pull | Recibir commits. Con ID o desde el canal. |
 | mark | Setear el punto de sincronizacion (`HEAD` o hash). |
 | check | Verificar canal por actualizaciones pendientes. |
-| status | Subir manifiesto del estado actual del repo. |
+| status | Subir manifiesto del estado actual del repo. Soporta `--local` para solo ver conteo. |
 | snapshot | Comparar con manifiesto remoto y subir solo las diferencias. |
 | diff | Previsualizar cambios sin aplicar. |
 | sync | Bajar y aplicar el snapshot. Acepta mensaje de commit personalizado. |
@@ -95,6 +96,8 @@ Navegá con ↑/↓, seleccioná con Enter, volvé con `q`, ESC o seleccionando 
 | channel | Submenú: create, set, show, clear, slot-get, slot-set. |
 | publish | Publicar binarios al canal. |
 | update | Descargar e instalar actualizaciones desde el canal. |
+| backup | Exportar datos del canal a archivo o stdout. |
+| restore | Importar datos del canal desde archivo. |
 | doc | Submenú: create, read, update, delete. |
 
 Los submenús de jcloud agrupan operaciones relacionadas y muestran "Back" para volver al menú padre.
@@ -109,11 +112,13 @@ infra-hub/
     └── hub/
         ├── main.swift              Punto de entrada, signal handlers, alternate screen
         ├── Version.swift           Versión del hub, findBinary() y binaryVersion()
+        ├── GitInfo.swift           Información de git del repositorio actual
         ├── Terminal.swift          Modo raw (termios), ANSI, alternate screen buffer
         ├── Menu.swift              Menú navegable con closures, separadores y quit
         ├── Form.swift              Formulario secuencial de campos con validación
         ├── Runner.swift            Ejecución de binarios con streaming de stdout/stderr
         └── Screens/
+            ├── DoctorScreen.swift  Diagnóstico de herramientas y configuración
             ├── MainScreen.swift    Menú principal
             ├── B2CScreen.swift     Pantallas de b2c
             ├── GsyncScreen.swift   Pantallas de gsync (con submenú ignore)
