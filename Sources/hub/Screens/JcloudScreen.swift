@@ -34,9 +34,9 @@ final class JcloudScreen {
 
 	private func channel() {
 		let items: [MenuItem] = [
+			MenuItem("show",     hint: "show current channel")  { self.channelShow() },
 			MenuItem("create",   hint: "create a new channel")  { self.channelCreate() },
 			MenuItem("set",      hint: "set active channel")    { self.channelSet() },
-			MenuItem("show",     hint: "show current channel")  { self.channelShow() },
 			MenuItem("clear",    hint: "clear channel")         { self.channelClear() },
 			.separator,
 			MenuItem("slot-get", hint: "get a channel slot")    { self.channelSlotGet() },
@@ -47,6 +47,10 @@ final class JcloudScreen {
 		let menu = Menu(terminal: terminal, title: "jcloud channel", items: items)
 
 		menu.run()
+	}
+	
+	private func channelShow() {
+		runner.run(binary: bin, arguments: ["channel", "show"])
 	}
 	
 	private func channelCreate() {
@@ -64,10 +68,6 @@ final class JcloudScreen {
         guard let values = form.run() else { return }
         runner.run(binary: bin, arguments: ["channel", "set", values[0]])
     }
-	
-	private func channelShow() {
-		runner.run(binary: bin, arguments: ["channel", "show"])
-	}
 	
 	private func channelClear() {
 		runner.run(binary: bin, arguments: ["channel", "clear"])

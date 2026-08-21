@@ -83,6 +83,25 @@ final class Terminal {
         isRawMode = false
     }
 
+    /// Temporarily restore cooked mode for subprocess execution.
+    /// Stays in alternate screen buffer.
+    func suspendRawMode() {
+        tcsetattr(STDIN_FILENO, TCSAFLUSH, &originalTermios)
+        write(ANSI.showCursor)
+        isRawMode = false
+    }
+
+    /// Re-enable raw mode after subprocess execution.
+    /// Stays in alternate screen buffer.
+    func resumeRawMode() {
+        var raw = originalTermios
+        cfmakeraw(&raw)
+        raw.c_lflag |= UInt(ISIG)
+        tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw)
+        write(ANSI.hideCursor)
+        isRawMode = true
+    }
+
     // MARK: Output helpers
 
     func write(_ s: String) {

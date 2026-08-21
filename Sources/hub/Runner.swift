@@ -19,7 +19,7 @@ final class Runner {
     /// Restores normal terminal mode before execution and re-enables raw mode after.
     @discardableResult
     func run(binary: String, arguments: [String]) -> Int32 {
-        terminal.disableRawMode()
+        terminal.suspendRawMode()
         terminal.clearScreen()
 
         // Header
@@ -70,7 +70,13 @@ final class Runner {
             terminal.write(ANSI.fgRed)
             terminal.writeln("  Error launching \(binary): \(error.localizedDescription)")
             terminal.write(ANSI.reset)
-            terminal.enableRawMode()
+            terminal.writeln()
+            terminal.write(ANSI.dim)
+            terminal.write("  Press any key to return to menu…")
+            terminal.write(ANSI.reset)
+            terminal.writeln()
+            terminal.resumeRawMode()
+            _ = terminal.readKey()
             return -1
         }
 
@@ -108,7 +114,7 @@ final class Runner {
         terminal.write(ANSI.reset)
         terminal.writeln()
 
-        terminal.enableRawMode()
+        terminal.resumeRawMode()
         _ = terminal.readKey()
 
         return code

@@ -36,7 +36,7 @@ final class Form {
 
         while current < fields.count {
             // Restore normal mode for line editing
-            terminal.disableRawMode()
+            terminal.suspendRawMode()
 
             render(values: values, current: current)
 
@@ -45,13 +45,13 @@ final class Form {
 
             // Read line from stdin (cooked mode)
             guard let line = readLine(strippingNewline: true) else {
-                terminal.enableRawMode()
+                terminal.resumeRawMode()
                 return nil
             }
 
             // ESC check: user can type ":q" to abort (raw ESC doesn't reach readLine)
             if line == ":q" || line == ":quit" {
-                terminal.enableRawMode()
+                terminal.resumeRawMode()
                 return nil
             }
 
@@ -60,13 +60,13 @@ final class Form {
                 terminal.writeln("  Field '\(field.label)' is required. Press Enter to retry or type :q to cancel.")
                 terminal.write(ANSI.reset)
                 _ = readLine()
-                terminal.enableRawMode()
+                terminal.resumeRawMode()
                 continue
             }
 
             values[current] = line
             current += 1
-            terminal.enableRawMode()
+            terminal.resumeRawMode()
         }
 
         return values
