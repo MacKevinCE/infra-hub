@@ -30,8 +30,8 @@ final class GsyncScreen {
             .separator,
             MenuItem("log",      hint: "show sync history")          { self.log() },
             MenuItem("ignore",   hint: "manage ignore patterns")   { self.ignore() },
-			.separator,
-			.quit("Back")
+            .separator,
+            .quit("Back")
         ]
         let version = binaryVersion(bin)
         let menu = Menu(terminal: terminal, title: "gsync v\(version)", items: items)
@@ -116,8 +116,8 @@ final class GsyncScreen {
             MenuItem("show",   hint: "show current patterns") { self.ignoreShow() },
             MenuItem("add",    hint: "add modified files or pattern") { self.ignoreAdd() },
             MenuItem("remove", hint: "remove a pattern") { self.ignoreRemove() },
-			.separator,
-			.quit("Back")
+            .separator,
+            .quit("Back")
         ]
         let menu = Menu(terminal: terminal, title: "gsync ignore", items: items)
 

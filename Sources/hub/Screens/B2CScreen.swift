@@ -20,10 +20,10 @@ final class B2CScreen {
             .separator,
             MenuItem("list",     hint: "show upload history")        { self.list() },
             MenuItem("delete",   hint: "delete index + all chunks") { self.delete() },
-			.separator,
-			.quit("Back")
+            .separator,
+            .quit("Back")
         ]
-		let version = binaryVersion(bin)
+        let version = binaryVersion(bin)
         let menu = Menu(terminal: terminal, title: "b2c v\(version)", items: items)
 
         menu.run()

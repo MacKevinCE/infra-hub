@@ -21,8 +21,8 @@ final class JcloudScreen {
             MenuItem("update",  hint: "update jcloud")   { self.update() },
             .separator,
             MenuItem("doc",     hint: "manage document") { self.doc() },
-			.separator,
-			.quit("Back")
+            .separator,
+            .quit("Back")
         ]
         let version = binaryVersion(bin)
         let menu = Menu(terminal: terminal, title: "jcloud v\(version)", items: items)
@@ -32,30 +32,30 @@ final class JcloudScreen {
 
     // MARK: - Command builders
 
-	private func channel() {
-		let items: [MenuItem] = [
-			MenuItem("show",     hint: "show current channel")  { self.channelShow() },
-			MenuItem("create",   hint: "create a new channel")  { self.channelCreate() },
-			MenuItem("set",      hint: "set active channel")    { self.channelSet() },
-			MenuItem("clear",    hint: "clear channel")         { self.channelClear() },
-			.separator,
-			MenuItem("slot-get", hint: "get a channel slot")    { self.channelSlotGet() },
-			MenuItem("slot-set", hint: "set a channel slot")    { self.channelSlotSet() },
-			.separator,
-			.quit("Back")
-		]
-		let menu = Menu(terminal: terminal, title: "jcloud channel", items: items)
+    private func channel() {
+        let items: [MenuItem] = [
+            MenuItem("show",     hint: "show current channel")  { self.channelShow() },
+            MenuItem("create",   hint: "create a new channel")  { self.channelCreate() },
+            MenuItem("set",      hint: "set active channel")    { self.channelSet() },
+            MenuItem("clear",    hint: "clear channel")         { self.channelClear() },
+            .separator,
+            MenuItem("slot-get", hint: "get a channel slot")    { self.channelSlotGet() },
+            MenuItem("slot-set", hint: "set a channel slot")    { self.channelSlotSet() },
+            .separator,
+            .quit("Back")
+        ]
+        let menu = Menu(terminal: terminal, title: "jcloud channel", items: items)
 
-		menu.run()
-	}
-	
-	private func channelShow() {
-		runner.run(binary: bin, arguments: ["channel", "show"])
-	}
-	
-	private func channelCreate() {
-		runner.run(binary: bin, arguments: ["channel", "create"])
-	}
+        menu.run()
+    }
+    
+    private func channelShow() {
+        runner.run(binary: bin, arguments: ["channel", "show"])
+    }
+    
+    private func channelCreate() {
+        runner.run(binary: bin, arguments: ["channel", "create"])
+    }
 
     private func channelSet() {
         let form = Form(
@@ -68,10 +68,10 @@ final class JcloudScreen {
         guard let values = form.run() else { return }
         runner.run(binary: bin, arguments: ["channel", "set", values[0]])
     }
-	
-	private func channelClear() {
-		runner.run(binary: bin, arguments: ["channel", "clear"])
-	}
+    
+    private func channelClear() {
+        runner.run(binary: bin, arguments: ["channel", "clear"])
+    }
 
     private func channelSlotGet() {
         let form = Form(
@@ -110,71 +110,71 @@ final class JcloudScreen {
         let tools = values[0].split(separator: " ").map(String.init)
         runner.run(binary: bin, arguments: ["publish"] + tools)
     }
-	
-	private func update() {
-		runner.run(binary: bin, arguments: ["update"])
-	}
+    
+    private func update() {
+        runner.run(binary: bin, arguments: ["update"])
+    }
 
-	private func doc() {
-		let items: [MenuItem] = [
-			MenuItem("create",       hint: "create a document")     { self.docCreate() },
-			MenuItem("read",         hint: "read a document by ID") { self.docRead() },
-			MenuItem("update",       hint: "update a document")     { self.docUpdate() },
-			MenuItem("delete",       hint: "delete a document")     { self.docDelete() },
-			.separator,
-			.quit("Back")
-		]
-		let menu = Menu(terminal: terminal, title: "jcloud doc", items: items)
+    private func doc() {
+        let items: [MenuItem] = [
+            MenuItem("create",       hint: "create a document")     { self.docCreate() },
+            MenuItem("read",         hint: "read a document by ID") { self.docRead() },
+            MenuItem("update",       hint: "update a document")     { self.docUpdate() },
+            MenuItem("delete",       hint: "delete a document")     { self.docDelete() },
+            .separator,
+            .quit("Back")
+        ]
+        let menu = Menu(terminal: terminal, title: "jcloud doc", items: items)
 
-		menu.run()
-	}
-	private func docCreate() {
-		let form = Form(
-			terminal: terminal,
-			title: "jcloud doc create",
-			fields: [
-				FormField("name"),
-				FormField("content"),
-			]
-		)
-		guard let values = form.run() else { return }
-		runner.run(binary: bin, arguments: ["doc", "create", values[0], values[1]])
-	}
+        menu.run()
+    }
+    private func docCreate() {
+        let form = Form(
+            terminal: terminal,
+            title: "jcloud doc create",
+            fields: [
+                FormField("name"),
+                FormField("content"),
+            ]
+        )
+        guard let values = form.run() else { return }
+        runner.run(binary: bin, arguments: ["doc", "create", values[0], values[1]])
+    }
 
-	private func docRead() {
-		let form = Form(
-			terminal: terminal,
-			title: "jcloud doc read",
-			fields: [
-				FormField("document ID"),
-			]
-		)
-		guard let values = form.run() else { return }
-		runner.run(binary: bin, arguments: ["doc", "read", values[0]])
-	}
+    private func docRead() {
+        let form = Form(
+            terminal: terminal,
+            title: "jcloud doc read",
+            fields: [
+                FormField("document ID"),
+            ]
+        )
+        guard let values = form.run() else { return }
+        runner.run(binary: bin, arguments: ["doc", "read", values[0]])
+    }
 
-	private func docUpdate() {
-		let form = Form(
-			terminal: terminal,
-			title: "jcloud doc update",
-			fields: [
-				FormField("document ID"),
-				FormField("new content"),
-			]
-		)
-		guard let values = form.run() else { return }
-		runner.run(binary: bin, arguments: ["doc", "update", values[0], values[1]])
-	}
+    private func docUpdate() {
+        let form = Form(
+            terminal: terminal,
+            title: "jcloud doc update",
+            fields: [
+                FormField("document ID"),
+                FormField("new content"),
+            ]
+        )
+        guard let values = form.run() else { return }
+        runner.run(binary: bin, arguments: ["doc", "update", values[0], values[1]])
+    }
 
-	private func docDelete() {
-		let form = Form(
-			terminal: terminal,
-			title: "jcloud doc delete",
-			fields: [
-				FormField("document ID"),
-			]
-		)
-		guard let values = form.run() else { return }
-		runner.run(binary: bin, arguments: ["doc", "delete", values[0]])
-	}
+    private func docDelete() {
+        let form = Form(
+            terminal: terminal,
+            title: "jcloud doc delete",
+            fields: [
+                FormField("document ID"),
+            ]
+        )
+        guard let values = form.run() else { return }
+        runner.run(binary: bin, arguments: ["doc", "delete", values[0]])
+    }
 }

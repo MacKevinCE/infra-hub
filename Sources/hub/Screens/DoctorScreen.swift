@@ -57,9 +57,7 @@ final class DoctorScreen {
 
         // Check channel
         print(ANSI.bold + "  Channel:" + ANSI.reset)
-        let channelPath = "\(NSHomeDirectory())/.config/b2c-gsync/channel"
-        if let channelId = try? String(contentsOfFile: channelPath, encoding: .utf8)
-            .trimmingCharacters(in: .whitespacesAndNewlines), !channelId.isEmpty {
+        if let channelId = GitInfo.channelId() {
             print("  \(ANSI.fgGreen)✓\(ANSI.reset) Configured: \(channelId)")
         } else {
             print("  \(ANSI.fgRed)✗\(ANSI.reset) No channel configured (run: jcloud channel create)")
@@ -68,11 +66,9 @@ final class DoctorScreen {
 
         // Check git repo + sync point
         print(ANSI.bold + "  Git repo:" + ANSI.reset)
-        let isRepo = checkGitRepo()
-        if isRepo {
+        if GitInfo.isRepo() {
             print("  \(ANSI.fgGreen)✓\(ANSI.reset) Inside git repository")
-            let syncPoint = checkSyncPoint()
-            if let sp = syncPoint {
+            if let sp = GitInfo.syncPoint() {
                 print("  \(ANSI.fgGreen)✓\(ANSI.reset) Sync point: \(sp)")
             } else {
                 print("  \(ANSI.fgYellow)!\(ANSI.reset) No sync point set (run: gsync mark HEAD)")
@@ -92,60 +88,7 @@ final class DoctorScreen {
         print()
     }
 
-    // MARK: - Helpers
-
     private func pad(_ s: String, _ width: Int) -> String {
         s.count >= width ? s : s + String(repeating: " ", count: width - s.count)
-    }
-
-    private func checkGitRepo() -> Bool {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
-        process.arguments = ["rev-parse", "--is-inside-work-tree"]
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = pipe
-        try? process.run()
-        process.waitUntilExit()
-        let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)?
-            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return output == "true"
-    }
-
-    private func checkSyncPoint() -> String? {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
-        process.arguments = ["rev-parse", "--git-dir"]
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = pipe
-        try? process.run()
-        process.waitUntilExit()
-        let gitDir = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)?
-            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ".git"
-
-        // Get current branch
-        let branchProc = Process()
-        branchProc.executableURL = URL(fileURLWithPath: "/usr/bin/git")
-        branchProc.arguments = ["rev-parse", "--abbrev-ref", "HEAD"]
-        let branchPipe = Pipe()
-        branchProc.standardOutput = branchPipe
-        branchProc.standardError = branchPipe
-        try? branchProc.run()
-        branchProc.waitUntilExit()
-        let branch = String(data: branchPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)?
-            .trimmingCharacters(in: .whitespacesAndNewlines) ?? "main"
-
-        // Check new path first, then old
-        let newPath = "\(gitDir)/gsync/branch/\(branch)/sync-point"
-        let oldPath = "\(gitDir)/gsync/\(branch)/sync-point"
-
-        for path in [newPath, oldPath] {
-            if let content = try? String(contentsOfFile: path, encoding: .utf8)
-                .trimmingCharacters(in: .whitespacesAndNewlines), !content.isEmpty {
-                return String(content.prefix(7))
-            }
-        }
-        return nil
     }
 }

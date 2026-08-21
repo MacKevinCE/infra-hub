@@ -6,10 +6,10 @@ struct MenuItem {
     let label: String
     let hint: String?
     let action: (() -> Void)?
-	
-	var isSeparator: Bool {
-		label.isEmpty && (hint ?? "").isEmpty
-	}
+    
+    var isSeparator: Bool {
+        label.isEmpty && (hint ?? "").isEmpty
+    }
 
     init(_ label: String, hint: String? = nil, action: @escaping () -> Void) {
         self.label = label
@@ -62,11 +62,11 @@ final class Menu {
             case .down:
                 selected = nextSelectable(from: selected)
             case .enter:
-				if let action = items[selected].action {
-					action()
-				} else {
-					return
-				}
+                if let action = items[selected].action {
+                    action()
+                } else {
+                    return
+                }
             case .quit, .escape:
                 return
             default:
