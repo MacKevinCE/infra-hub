@@ -9,10 +9,12 @@ let terminal = Terminal()
 
 // Install signal handler to restore terminal on SIGINT / SIGTERM.
 func restoreTerminal() {
-    // Exit alt screen first while terminal still accepts raw escape sequences
-    print(ANSI.showCursor + ANSI.exitAltScreen, terminator: "")
-    fflush(stdout)
-    // Restore full original termios (not just ICANON|ECHO)
+    // Exit alt screen using async-signal-safe write() syscall
+    let seq = ANSI.showCursor + ANSI.exitAltScreen
+    seq.withCString { ptr in
+        _ = Darwin.write(STDOUT_FILENO, ptr, strlen(ptr))
+    }
+    // Restore full original termios
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &savedTermios)
 }
 
@@ -29,8 +31,8 @@ if CommandLine.arguments.count >= 2 {
     }
 }
 
-signal(SIGINT)  { _ in restoreTerminal(); exit(0) }
-signal(SIGTERM) { _ in restoreTerminal(); exit(0) }
+signal(SIGINT)  { _ in restoreTerminal(); _exit(0) }
+signal(SIGTERM) { _ in restoreTerminal(); _exit(0) }
 
 terminal.enableRawMode()
 defer {
