@@ -18,6 +18,7 @@ final class B2CScreen {
             MenuItem("upload",   hint: "upload file or directory")  { self.upload() },
             MenuItem("download", hint: "download by index ID")      { self.download() },
             .separator,
+            MenuItem("list",     hint: "show upload history")        { self.list() },
             MenuItem("delete",   hint: "delete index + all chunks") { self.delete() },
 			.separator,
 			.quit("Back")
@@ -43,6 +44,10 @@ final class B2CScreen {
         var args = ["upload", values[0]]
         if !values[1].isEmpty { args += ["-k", values[1]] }
         runner.run(binary: bin, arguments: args)
+    }
+
+    private func list() {
+        runner.run(binary: bin, arguments: ["list"])
     }
 
     private func delete() {

@@ -22,6 +22,7 @@ final class GsyncScreen {
             .separator,
             MenuItem("status",   hint: "show sync status")         { self.status() },
             MenuItem("snapshot", hint: "snapshot [manifestId]")     { self.snapshot() },
+            MenuItem("diff",     hint: "preview changes")           { self.diff() },
             MenuItem("sync",     hint: "sync [snapshotId]")        { self.sync() },
             .separator,
             MenuItem("ignore",   hint: "manage ignore patterns")   { self.ignore() },
@@ -135,6 +136,20 @@ final class GsyncScreen {
         )
         guard let values = form.run() else { return }
         runner.run(binary: bin, arguments: ["ignore", "remove", values[0]])
+    }
+
+    private func diff() {
+        let form = Form(
+            terminal: terminal,
+            title: "gsync diff",
+            fields: [
+                FormField("snapshot ID", placeholder: "leave empty for latest", required: false),
+            ]
+        )
+        guard let values = form.run() else { return }
+        var args = ["diff"]
+        if !values[0].isEmpty { args.append(values[0]) }
+        runner.run(binary: bin, arguments: args)
     }
 
     private func sync() {
