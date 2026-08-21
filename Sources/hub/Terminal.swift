@@ -11,6 +11,8 @@ enum ANSI {
     static let home        = "\u{1B}[H"
     static let hideCursor  = "\u{1B}[?25l"
     static let showCursor  = "\u{1B}[?25h"
+    static let enterAltScreen = "\u{1B}[?1049h"
+    static let exitAltScreen  = "\u{1B}[?1049l"
     static let clearLine   = "\u{1B}[2K"
     static let saveCursor  = "\u{1B}7"
     static let restoreCursor = "\u{1B}8"
@@ -70,13 +72,15 @@ final class Terminal {
         raw.c_lflag |= UInt(ISIG)
         tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw)
         isRawMode = true
-        write(ANSI.hideCursor)
+        write(ANSI.enterAltScreen + ANSI.hideCursor)
     }
 
     func disableRawMode() {
+        // Exit alt screen while still in raw mode (clean escape sequence)
+        write(ANSI.showCursor + ANSI.exitAltScreen)
+        // Then restore original terminal settings
         tcsetattr(STDIN_FILENO, TCSAFLUSH, &originalTermios)
         isRawMode = false
-        write(ANSI.showCursor)
     }
 
     // MARK: Output helpers

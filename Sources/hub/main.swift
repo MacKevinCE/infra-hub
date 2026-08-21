@@ -5,31 +5,23 @@ import Darwin
 let terminal = Terminal()
 
 // Install signal handler to restore terminal on SIGINT / SIGTERM.
-signal(SIGINT) { _ in
+func restoreTerminal() {
+    // Exit alt screen first while terminal still accepts raw escape sequences
+    print(ANSI.showCursor + ANSI.exitAltScreen, terminator: "")
+    fflush(stdout)
+    // Then restore canonical mode + echo
     var t = termios()
     tcgetattr(STDIN_FILENO, &t)
-    // Re-enable canonical mode + echo before exiting.
     t.c_lflag |= UInt(ICANON | ECHO)
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &t)
-    print(ANSI.showCursor, terminator: "")
-    fflush(stdout)
-    exit(0)
 }
 
-signal(SIGTERM) { _ in
-    var t = termios()
-    tcgetattr(STDIN_FILENO, &t)
-    t.c_lflag |= UInt(ICANON | ECHO)
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &t)
-    print(ANSI.showCursor, terminator: "")
-    fflush(stdout)
-    exit(0)
-}
+signal(SIGINT)  { _ in restoreTerminal(); exit(0) }
+signal(SIGTERM) { _ in restoreTerminal(); exit(0) }
 
 terminal.enableRawMode()
 defer {
     terminal.disableRawMode()
-    terminal.clearScreen()
 }
 
 MainScreen(terminal: terminal).run()
