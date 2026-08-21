@@ -17,8 +17,6 @@ final class JcloudScreen {
         let items: [MenuItem] = [
             MenuItem("channel", hint: "manage channel")  { self.channel() },
             .separator,
-            MenuItem("publish", hint: "publish tools")   { self.publish() },
-            MenuItem("update",  hint: "update jcloud")   { self.update() },
             MenuItem("backup",  hint: "export channel data") { self.backup() },
             MenuItem("restore", hint: "import channel data") { self.restore() },
             .separator,
@@ -100,22 +98,6 @@ final class JcloudScreen {
         runner.run(binary: bin, arguments: ["channel", "slot-set", values[0], values[1]])
     }
 
-    private func publish() {
-        let form = Form(
-            terminal: terminal,
-            title: "jcloud publish",
-            fields: [
-                FormField("tools (space-separated)", placeholder: "e.g. tool1 tool2 tool3"),
-            ]
-        )
-        guard let values = form.run() else { return }
-        let tools = values[0].split(separator: " ").map(String.init)
-        runner.run(binary: bin, arguments: ["publish"] + tools)
-    }
-    
-    private func update() {
-        runner.run(binary: bin, arguments: ["update"])
-    }
 
     private func backup() {
         let form = Form(

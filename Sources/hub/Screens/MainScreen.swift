@@ -16,6 +16,7 @@ final class MainScreen {
             MenuItem("b2c",    hint: "blob store")     { B2CScreen(terminal: self.terminal, runner: self.runner).run() },
             MenuItem("gsync",  hint: gsyncHint())      { GsyncScreen(terminal: self.terminal, runner: self.runner).run() },
             MenuItem("jcloud", hint: channelHint())    { JcloudScreen(terminal: self.terminal, runner: self.runner).run() },
+            MenuItem("seed",   hint: "publish and update tools") { SeedScreen(terminal: self.terminal, runner: self.runner).run() },
             .separator,
             MenuItem("doctor", hint: "check tools and config") { DoctorScreen(terminal: self.terminal).run() },
             .separator,
