@@ -25,6 +25,7 @@ final class GsyncScreen {
             MenuItem("diff",     hint: "preview changes")           { self.diff() },
             MenuItem("sync",     hint: "sync [snapshotId]")        { self.sync() },
             .separator,
+            MenuItem("log",      hint: "show sync history")          { self.log() },
             MenuItem("ignore",   hint: "manage ignore patterns")   { self.ignore() },
 			.separator,
 			.quit("Back")
@@ -93,6 +94,10 @@ final class GsyncScreen {
         var args = ["snapshot"]
         if !values[0].isEmpty { args.append(values[0]) }
         runner.run(binary: bin, arguments: args)
+    }
+
+    private func log() {
+        runner.run(binary: bin, arguments: ["log"])
     }
 
     private func ignore() {
