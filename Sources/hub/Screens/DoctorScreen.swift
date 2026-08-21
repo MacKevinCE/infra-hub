@@ -23,9 +23,9 @@ final class DoctorScreen {
         // Check tools with minimum versions
         print(ANSI.bold + "  Tools:" + ANSI.reset)
         let requirements: [(name: String, minVersion: String?)] = [
-            ("jcloud", "1.3.0"),
-            ("b2c",    "1.8.0"),
-            ("gsync",  "1.11.0"),
+            ("jcloud", minJcloudVersion),
+            ("b2c",    minB2cVersion),
+            ("gsync",  minGsyncVersion),
             ("git",    nil),
         ]
         var allFound = true
