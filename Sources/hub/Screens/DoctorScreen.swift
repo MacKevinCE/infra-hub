@@ -20,18 +20,25 @@ final class DoctorScreen {
         print(String(repeating: "─", count: sepWidth))
         print()
 
-        // Check tools
+        // Check tools with minimum versions
         print(ANSI.bold + "  Tools:" + ANSI.reset)
-        let tools = ["jcloud", "b2c", "gsync", "git"]
+        let requirements: [(name: String, minVersion: String?)] = [
+            ("jcloud", "1.3.0"),
+            ("b2c",    "1.8.0"),
+            ("gsync",  "1.11.0"),
+            ("git",    nil),
+        ]
         var allFound = true
-        for tool in tools {
-            let path = findBinary(tool)
+        for req in requirements {
+            let path = findBinary(req.name)
             let version = binaryVersion(path)
             let exists = FileManager.default.isExecutableFile(atPath: path)
             if exists {
-                print("  \(ANSI.fgGreen)✓\(ANSI.reset) \(pad(tool, 8)) \(pad(version, 8)) \(path)")
+                let minLabel = req.minVersion != nil ? " (min: \(req.minVersion!))" : ""
+                print("  \(ANSI.fgGreen)✓\(ANSI.reset) \(pad(req.name, 8)) \(pad(version, 8)) \(path)\(minLabel)")
             } else {
-                print("  \(ANSI.fgRed)✗\(ANSI.reset) \(tool) — not found in PATH")
+                let minLabel = req.minVersion ?? ""
+                print("  \(ANSI.fgRed)✗\(ANSI.reset) \(req.name) — not found in PATH (requires \(minLabel)+)")
                 allFound = false
             }
         }
