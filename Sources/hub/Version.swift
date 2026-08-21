@@ -1,6 +1,6 @@
 import Foundation
 
-let hubVersion = "1.3.0"
+let hubVersion = "1.4.0"
 
 func findBinary(_ name: String) -> String {
     let process = Process()
