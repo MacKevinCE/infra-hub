@@ -131,11 +131,13 @@ final class GsyncScreen {
             title: "gsync sync",
             fields: [
                 FormField("snapshot ID", placeholder: "leave empty for latest", required: false),
+                FormField("commit message (-m)", placeholder: "leave empty for default", required: false),
             ]
         )
         guard let values = form.run() else { return }
         var args = ["sync"]
         if !values[0].isEmpty { args.append(values[0]) }
+        if !values[1].isEmpty { args += ["-m", values[1]] }
         runner.run(binary: bin, arguments: args)
     }
 }
