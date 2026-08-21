@@ -1,6 +1,6 @@
 import Foundation
 
-private let bin = "/usr/local/bin/b2c"
+private let bin = findBinary("b2c")
 
 // MARK: - B2CScreen
 
@@ -16,23 +16,14 @@ final class B2CScreen {
     func run() {
         let version = binaryVersion(bin)
         let items: [MenuItem] = [
-            MenuItem("upload",   hint: "upload file or directory"),
-            MenuItem("download", hint: "download by index ID"),
+            MenuItem("upload",   hint: "upload file or directory")  { self.upload() },
+            MenuItem("download", hint: "download by index ID")      { self.download() },
             .separator,
-            MenuItem("delete",   hint: "delete index + all chunks"),
+            MenuItem("delete",   hint: "delete index + all chunks") { self.delete() },
         ]
         let menu = Menu(terminal: terminal, title: "b2c v\(version)", items: items)
 
-        while true {
-            guard let choice = menu.run() else { return }
-
-            switch choice {
-            case 0: upload()
-            case 1: download()
-            case 3: delete()
-            default: break
-            }
-        }
+        while menu.run() != nil {}
     }
 
     // MARK: - Command builders

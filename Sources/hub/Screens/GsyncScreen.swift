@@ -1,6 +1,6 @@
 import Foundation
 
-private let bin = "/usr/local/bin/gsync"
+private let bin = findBinary("gsync")
 
 // MARK: - GsyncScreen
 
@@ -15,34 +15,21 @@ final class GsyncScreen {
 
     func run() {
         let items: [MenuItem] = [
-            MenuItem("push",     hint: "push commits [range]"),
-            MenuItem("pull",     hint: "pull by index ID"),
+            MenuItem("push",     hint: "push commits [range]")    { self.push() },
+            MenuItem("pull",     hint: "pull by index ID")         { self.pull() },
             .separator,
-            MenuItem("mark",     hint: "mark a commit"),
+            MenuItem("mark",     hint: "mark a commit")            { self.mark() },
             .separator,
-            MenuItem("status",   hint: "show sync status"),
-            MenuItem("snapshot", hint: "snapshot [manifestId]"),
-            MenuItem("sync",     hint: "sync [snapshotId]"),
+            MenuItem("status",   hint: "show sync status")         { self.runner.run(binary: bin, arguments: ["status"]) },
+            MenuItem("snapshot", hint: "snapshot [manifestId]")     { self.snapshot() },
+            MenuItem("sync",     hint: "sync [snapshotId]")        { self.sync() },
             .separator,
-            MenuItem("ignore",   hint: "manage ignore patterns"),
+            MenuItem("ignore",   hint: "manage ignore patterns")   { self.ignore() },
         ]
         let version = binaryVersion(bin)
         let menu = Menu(terminal: terminal, title: "gsync v\(version)", items: items)
 
-        while true {
-            guard let choice = menu.run() else { return }
-
-            switch choice {
-            case 0: push()
-            case 1: pull()
-            case 3: mark()
-            case 5: runner.run(binary: bin, arguments: ["status"])
-            case 6: snapshot()
-            case 7: sync()
-            case 9: ignore()
-            default: break
-            }
-        }
+        while menu.run() != nil {}
     }
 
     // MARK: - Command builders
@@ -103,25 +90,13 @@ final class GsyncScreen {
 
     private func ignore() {
         let items: [MenuItem] = [
-            MenuItem("show",   hint: "show current patterns"),
-            MenuItem("add",    hint: "add modified files or pattern"),
-            MenuItem("remove", hint: "remove a pattern"),
+            MenuItem("show",   hint: "show current patterns") { self.runner.run(binary: bin, arguments: ["ignore"]) },
+            MenuItem("add",    hint: "add modified files or pattern") { self.ignoreAdd() },
+            MenuItem("remove", hint: "remove a pattern") { self.ignoreRemove() },
         ]
         let menu = Menu(terminal: terminal, title: "gsync ignore", items: items)
 
-        while true {
-            guard let choice = menu.run() else { return }
-
-            switch choice {
-            case 0:
-                runner.run(binary: bin, arguments: ["ignore"])
-            case 1:
-                ignoreAdd()
-            case 2:
-                ignoreRemove()
-            default: break
-            }
-        }
+        while menu.run() != nil {}
     }
 
     private func ignoreAdd() {

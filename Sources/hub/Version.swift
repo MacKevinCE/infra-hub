@@ -1,6 +1,20 @@
 import Foundation
 
-let hubVersion = "1.2.0"
+let hubVersion = "1.3.0"
+
+func findBinary(_ name: String) -> String {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/which")
+    process.arguments = [name]
+    let pipe = Pipe()
+    process.standardOutput = pipe
+    process.standardError = pipe
+    try? process.run()
+    process.waitUntilExit()
+    let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)?
+        .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    return output.isEmpty ? "/usr/local/bin/\(name)" : output
+}
 
 func binaryVersion(_ path: String) -> String {
     let process = Process()

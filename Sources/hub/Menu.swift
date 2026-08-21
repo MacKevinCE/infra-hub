@@ -6,17 +6,27 @@ struct MenuItem {
     let label: String
     let hint: String?
     let isSeparator: Bool
+    let action: (() -> Void)?
+
+    init(_ label: String, hint: String? = nil, action: @escaping () -> Void) {
+        self.label = label
+        self.hint  = hint
+        self.isSeparator = false
+        self.action = action
+    }
 
     init(_ label: String, hint: String? = nil) {
         self.label = label
         self.hint  = hint
         self.isSeparator = false
+        self.action = nil
     }
 
     private init(separator: Bool) {
         self.label = ""
         self.hint  = nil
         self.isSeparator = true
+        self.action = nil
     }
 
     static let separator = MenuItem(separator: true)
@@ -38,6 +48,8 @@ final class Menu {
     }
 
     /// Blocks until user picks an item or quits.
+    /// If the selected item has an action closure, executes it and loops.
+    /// Otherwise returns the selected index.
     func run() -> Int? {
         var selected = 0
 
@@ -51,7 +63,11 @@ final class Menu {
             case .down:
                 selected = nextSelectable(from: selected)
             case .enter:
-                return selected
+                if let action = items[selected].action {
+                    action()
+                } else {
+                    return selected
+                }
             case .quit, .escape:
                 return nil
             default:

@@ -12,26 +12,18 @@ final class MainScreen {
     }
 
     func run() {
+        var quit = false
         let items: [MenuItem] = [
-            MenuItem("b2c",    hint: "blob store"),
-            MenuItem("gsync",  hint: "git sync"),
-            MenuItem("jcloud", hint: "document cloud"),
+            MenuItem("b2c",    hint: "blob store")    { B2CScreen(terminal: self.terminal, runner: self.runner).run() },
+            MenuItem("gsync",  hint: "git sync")      { GsyncScreen(terminal: self.terminal, runner: self.runner).run() },
+            MenuItem("jcloud", hint: "document cloud") { JcloudScreen(terminal: self.terminal, runner: self.runner).run() },
             .separator,
-            MenuItem("Quit"),
+            MenuItem("Quit") { quit = true },
         ]
         let menu = Menu(terminal: terminal, title: "infra-hub v\(hubVersion)", items: items)
 
-        while true {
-            guard let choice = menu.run() else { break }
-
-            switch choice {
-            case 0: B2CScreen(terminal: terminal, runner: runner).run()
-            case 1: GsyncScreen(terminal: terminal, runner: runner).run()
-            case 2: JcloudScreen(terminal: terminal, runner: runner).run()
-            default: break // Quit or unknown — exit loop below
-            }
-
-            if choice == 4 { break }
+        while !quit {
+            if menu.run() == nil { break }
         }
     }
 }

@@ -1,6 +1,6 @@
 import Foundation
 
-private let bin = "/usr/local/bin/jcloud"
+private let bin = findBinary("jcloud")
 
 // MARK: - JcloudScreen
 
@@ -15,44 +15,26 @@ final class JcloudScreen {
 
     func run() {
         let items: [MenuItem] = [
-            MenuItem("channel create",   hint: "create a new channel"),
-            MenuItem("channel set",      hint: "set active channel"),
-            MenuItem("channel show",     hint: "show current channel"),
-            MenuItem("channel clear",    hint: "clear channel"),
+            MenuItem("channel create",   hint: "create a new channel")  { self.runner.run(binary: bin, arguments: ["channel", "create"]) },
+            MenuItem("channel set",      hint: "set active channel")    { self.channelSet() },
+            MenuItem("channel show",     hint: "show current channel")  { self.runner.run(binary: bin, arguments: ["channel", "show"]) },
+            MenuItem("channel clear",    hint: "clear channel")         { self.runner.run(binary: bin, arguments: ["channel", "clear"]) },
             .separator,
-            MenuItem("channel slot-get", hint: "get a channel slot"),
-            MenuItem("channel slot-set", hint: "set a channel slot"),
+            MenuItem("channel slot-get", hint: "get a channel slot")    { self.channelSlotGet() },
+            MenuItem("channel slot-set", hint: "set a channel slot")    { self.channelSlotSet() },
             .separator,
-            MenuItem("publish",          hint: "publish tools"),
-            MenuItem("update",           hint: "update jcloud"),
+            MenuItem("publish",          hint: "publish tools")         { self.publish() },
+            MenuItem("update",           hint: "update jcloud")         { self.runner.run(binary: bin, arguments: ["update"]) },
             .separator,
-            MenuItem("doc create",       hint: "create a document"),
-            MenuItem("doc read",         hint: "read a document by ID"),
-            MenuItem("doc update",       hint: "update a document"),
-            MenuItem("doc delete",       hint: "delete a document"),
+            MenuItem("doc create",       hint: "create a document")     { self.docCreate() },
+            MenuItem("doc read",         hint: "read a document by ID") { self.docRead() },
+            MenuItem("doc update",       hint: "update a document")     { self.docUpdate() },
+            MenuItem("doc delete",       hint: "delete a document")     { self.docDelete() },
         ]
         let version = binaryVersion(bin)
         let menu = Menu(terminal: terminal, title: "jcloud v\(version)", items: items)
 
-        while true {
-            guard let choice = menu.run() else { return }
-
-            switch choice {
-            case 0:  runner.run(binary: bin, arguments: ["channel", "create"])
-            case 1:  channelSet()
-            case 2:  runner.run(binary: bin, arguments: ["channel", "show"])
-            case 3:  runner.run(binary: bin, arguments: ["channel", "clear"])
-            case 5:  channelSlotGet()
-            case 6:  channelSlotSet()
-            case 8: publish()
-            case 9: runner.run(binary: bin, arguments: ["update"])
-            case 11: docCreate()
-            case 12: docRead()
-            case 13: docUpdate()
-            case 14: docDelete()
-            default: break
-            }
-        }
+        while menu.run() != nil {}
     }
 
     // MARK: - Command builders
@@ -153,7 +135,6 @@ final class JcloudScreen {
             ]
         )
         guard let values = form.run() else { return }
-        // Split on whitespace to get individual tool names
         let tools = values[0].split(separator: " ").map(String.init)
         runner.run(binary: bin, arguments: ["publish"] + tools)
     }
