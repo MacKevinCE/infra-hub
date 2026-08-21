@@ -15,10 +15,13 @@ final class GsyncScreen {
 
     func run() {
         let items: [MenuItem] = [
+            MenuItem("init",     hint: "setup wizard")              { self.initCmd() },
+            .separator,
             MenuItem("push",     hint: "push commits [range]")    { self.push() },
             MenuItem("pull",     hint: "pull by index ID")         { self.pull() },
             .separator,
             MenuItem("mark",     hint: "mark a commit")            { self.mark() },
+            MenuItem("check",    hint: "check channel for updates") { self.check() },
             .separator,
             MenuItem("status",   hint: "show sync status")         { self.status() },
             MenuItem("snapshot", hint: "snapshot [manifestId]")     { self.snapshot() },
@@ -37,6 +40,14 @@ final class GsyncScreen {
     }
 
     // MARK: - Command builders
+
+    private func initCmd() {
+        runner.run(binary: bin, arguments: ["init"])
+    }
+
+    private func check() {
+        runner.run(binary: bin, arguments: ["check"])
+    }
 
     private func push() {
         let form = Form(

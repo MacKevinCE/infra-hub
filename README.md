@@ -54,6 +54,8 @@ Ejecutar `hub` sin argumentos abre el menú principal:
     gsync  - git sync
     jcloud - document cloud
 
+    doctor - check tools and config
+
     Quit
 
   ↑/↓ navigate   Enter select   q/ESC back
@@ -72,16 +74,19 @@ Navegá con ↑/↓, seleccioná con Enter, volvé con `q`, ESC o seleccionando 
 
 ### gsync
 
-| Opción | Descripción |
+| Opcion | Descripcion |
 |--------|-------------|
+| init | Wizard de configuracion inicial (sync point + canal). |
 | push | Enviar commits al canal. Acepta rango opcional (ej. `HEAD~3..HEAD`). |
 | pull | Recibir commits. Con ID o desde el canal. |
-| mark | Setear el punto de sincronización (`HEAD` o hash). |
+| mark | Setear el punto de sincronizacion (`HEAD` o hash). |
+| check | Verificar canal por actualizaciones pendientes. |
 | status | Subir manifiesto del estado actual del repo. |
 | snapshot | Comparar con manifiesto remoto y subir solo las diferencias. |
 | diff | Previsualizar cambios sin aplicar. |
 | sync | Bajar y aplicar el snapshot. Acepta mensaje de commit personalizado. |
-| ignore | Submenú: show, add (auto-detectar o patrón), remove. |
+| log | Mostrar historial de operaciones de sync. |
+| ignore | Submenu: show, add (auto-detectar o patron), remove. |
 
 ### jcloud
 
