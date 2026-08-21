@@ -1,4 +1,4 @@
-# infra-hub v1.1.0 — TUI para b2c, gsync y jcloud
+# infra-hub v1.3.0 — TUI para b2c, gsync y jcloud
 
 Interfaz de consola interactiva (TUI) que centraliza el acceso a las tres herramientas del ecosistema de infraestructura personal. Navegación con flechas, formularios guiados, sin necesidad de recordar comandos ni flags.
 
@@ -29,10 +29,10 @@ El binario queda en `.build/release/hub`.
 
 ## Instalación
 
-`infra-hub` se instala como un shell script que invoca `swift run`. Esto es necesario porque en macOS 14+ el kernel rechaza binarios Swift compilados fuera de Xcode (SIGKILL por firma inválida). El toolchain de Swift sí está firmado por Apple.
+`infra-hub` se instala como un shell script que ejecuta el binario compilado directamente. Solo compila si el binario no existe.
 
 ```bash
-printf '#!/bin/bash\ncd "$HOME/Swift/infra-hub"\nexec swift run -c release hub "$@"\n' > /usr/local/bin/hub
+printf '#!/bin/bash\nBIN="$HOME/Swift/infra-hub/.build/release/hub"\n[ -x "$BIN" ] || (cd "$HOME/Swift/infra-hub" && swift build -c release >&2)\n"$BIN" "$@"\n' > /usr/local/bin/hub
 chmod +x /usr/local/bin/hub
 ```
 
@@ -48,17 +48,18 @@ hub
 Ejecutar `hub` sin argumentos abre el menú principal:
 
 ```
-  infra-hub v1.0.0
+  infra-hub v1.3.0
 ────────────────────────────────────────
-  ▶ b2c    blob store
-    gsync  git sync
-    jcloud document cloud
+  ▶ b2c    - blob store
+    gsync  - git sync
+    jcloud - document cloud
+
     Quit
 
   ↑/↓ navigate   Enter select   q/ESC back
 ```
 
-Navegá con ↑/↓, seleccioná con Enter, volvé con `q` o ESC.
+Navegá con ↑/↓, seleccioná con Enter, volvé con `q`, ESC o seleccionando "Back".
 
 ### b2c
 
@@ -66,6 +67,7 @@ Navegá con ↑/↓, seleccioná con Enter, volvé con `q` o ESC.
 |--------|-------------|
 | upload | Subir archivo o directorio. Pide el path y tamaño de chunk opcional. |
 | download | Bajar por Index ID. Vacío = usa el canal configurado. |
+| list | Ver historial local de uploads. |
 | delete | Eliminar el índice y todos los chunks asociados (cascade delete). |
 
 ### gsync
@@ -77,24 +79,20 @@ Navegá con ↑/↓, seleccioná con Enter, volvé con `q` o ESC.
 | mark | Setear el punto de sincronización (`HEAD` o hash). |
 | status | Subir manifiesto del estado actual del repo. |
 | snapshot | Comparar con manifiesto remoto y subir solo las diferencias. |
-| sync | Bajar y aplicar el snapshot. |
+| diff | Previsualizar cambios sin aplicar. |
+| sync | Bajar y aplicar el snapshot. Acepta mensaje de commit personalizado. |
+| ignore | Submenú: show, add (auto-detectar o patrón), remove. |
 
 ### jcloud
 
 | Opción | Descripción |
 |--------|-------------|
-| doc create | Crear documento (nombre + contenido). |
-| doc read | Leer documento por ID. |
-| doc update | Actualizar documento por ID. |
-| doc delete | Eliminar documento por ID. |
-| channel create | Crear canal nuevo. |
-| channel set | Configurar canal existente. |
-| channel show | Ver canal configurado. |
-| channel clear | Limpiar configuración local. |
-| channel slot-get | Obtener valor de un slot. |
-| channel slot-set | Escribir valor en un slot. |
+| channel | Submenú: create, set, show, clear, slot-get, slot-set. |
 | publish | Publicar binarios al canal. |
 | update | Descargar e instalar actualizaciones desde el canal. |
+| doc | Submenú: create, read, update, delete. |
+
+Los submenús de jcloud agrupan operaciones relacionadas y muestran "Back" para volver al menú padre.
 
 ## Estructura del proyecto
 
@@ -104,44 +102,45 @@ infra-hub/
 ├── README.md
 └── Sources/
     └── hub/
-        ├── main.swift              Punto de entrada, signal handlers (SIGINT/SIGTERM)
-        ├── Version.swift           Versión del hub y helper binaryVersion()
-        ├── Terminal.swift          Modo raw (termios), ANSI, lectura de teclas
-        ├── Menu.swift              Menú navegable con flechas, adaptativo al ancho
+        ├── main.swift              Punto de entrada, signal handlers, alternate screen
+        ├── Version.swift           Versión del hub, findBinary() y binaryVersion()
+        ├── Terminal.swift          Modo raw (termios), ANSI, alternate screen buffer
+        ├── Menu.swift              Menú navegable con closures, separadores y quit
         ├── Form.swift              Formulario secuencial de campos con validación
         ├── Runner.swift            Ejecución de binarios con streaming de stdout/stderr
         └── Screens/
             ├── MainScreen.swift    Menú principal
             ├── B2CScreen.swift     Pantallas de b2c
-            ├── GsyncScreen.swift   Pantallas de gsync
-            └── JcloudScreen.swift  Pantallas de jcloud
+            ├── GsyncScreen.swift   Pantallas de gsync (con submenú ignore)
+            └── JcloudScreen.swift  Pantallas de jcloud (con submenús channel y doc)
 ```
 
 ### Arquitectura
 
-- **Terminal** — gestión del modo raw vía `termios`, escape codes ANSI y lectura de teclas (flechas via secuencias ESC).
-- **Menu** — componente reutilizable para menús con navegación por flechas. Adapta separadores e items al ancho real del terminal. Trunca hints con `…` en pantallas angostas.
-- **Form** — componente reutilizable para formularios secuenciales. Alterna entre modo raw (navegación) y modo cooked (entrada de texto) por campo. Soporta campos opcionales y cancelación con `:q`.
+- **Terminal** — gestión del modo raw vía `termios`, escape codes ANSI, alternate screen buffer (como vim/less: al salir, la terminal queda como estaba) y lectura de teclas (flechas via secuencias ESC).
+- **Menu** — componente reutilizable. Items con closures de acción se ejecutan directo. Items sin acción y `isQuit` terminan el menú. Separadores agrupan visualmente y se saltan al navegar. Adapta al ancho del terminal y trunca con `…`.
+- **Form** — formularios secuenciales. Alterna entre modo raw (navegación) y modo cooked (entrada de texto) por campo. Soporta campos opcionales y cancelación con `:q`.
 - **Runner** — ejecuta los binarios como subprocesos con pipes para streaming de stdout/stderr en tiempo real. Muestra stderr en rojo y el exit code si es distinto de cero.
-- **Screens** — orquestan Menu, Form y Runner para cada herramienta y subcomando. Obtienen la versión del binario al iniciar para mostrarla en el título.
+- **Screens** — orquestan Menu, Form y Runner. Usan `findBinary()` para localizar binarios dinámicamente vía `which` (fallback a `/usr/local/bin/`). Obtienen la versión del binario al iniciar para mostrarla en el título.
 
 ## Notas técnicas
 
-### Por qué usa `swift run` en lugar del binario directo
+### Alternate screen buffer
 
-En macOS 14+, el kernel (taskgated) rechaza binarios Swift compilados fuera de Xcode con SIGKILL (`Code Signature Invalid`). El wrapper de shell invoca `swift run -c release`, que usa el toolchain de Apple (firmado) para ejecutar el paquete.
-
-El binario se compila una vez y queda cacheado en `.build/release/`. Las ejecuciones siguientes son casi instantáneas si no hubo cambios en el código fuente.
+Al iniciar, hub cambia a un buffer de pantalla alternativo (`\e[?1049h`). Al salir, restaura el buffer original (`\e[?1049l`). Esto preserva el contenido previo de la terminal, igual que `vim` o `less`. Las secuencias de escape se envían antes de restaurar `termios` para evitar conflictos con prompts como Starship.
 
 ### Modo raw y `\r\n`
 
 En `termios` raw mode, `\n` solo mueve el cursor hacia abajo sin retornar a columna 1. Todas las escrituras de línea usan `\r\n` para el comportamiento correcto en cualquier emulador de terminal.
 
+### Búsqueda dinámica de binarios
+
+`findBinary()` usa `which` para localizar `b2c`, `gsync` y `jcloud` en el PATH del usuario. Si `which` no encuentra el binario, usa `/usr/local/bin/<name>` como fallback.
+
 ## Limitaciones
 
-- Los paths de los binarios están hardcodeados a `/usr/local/bin/b2c`, `/usr/local/bin/gsync` y `/usr/local/bin/jcloud`.
 - No tiene historial de entrada ni completado de texto dentro de los formularios.
-- El wrapper agrega overhead en la primera ejecución si el código cambió desde el último build.
+- El wrapper agrega overhead en la primera compilación si el binario no existe.
 
 ## Licencia
 
