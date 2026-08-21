@@ -19,11 +19,13 @@ final class B2CScreen {
             MenuItem("download", hint: "download by index ID")      { self.download() },
             .separator,
             MenuItem("delete",   hint: "delete index + all chunks") { self.delete() },
+			.separator,
+			.quit("Back")
         ]
 		let version = binaryVersion(bin)
         let menu = Menu(terminal: terminal, title: "b2c v\(version)", items: items)
 
-        while menu.run() != nil {}
+        menu.run()
     }
 
     // MARK: - Command builders

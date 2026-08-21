@@ -5,37 +5,37 @@ import Foundation
 struct MenuItem {
     let label: String
     let hint: String?
-    let isSeparator: Bool
     let action: (() -> Void)?
+	
+	var isSeparator: Bool {
+		label.isEmpty && (hint ?? "").isEmpty
+	}
 
     init(_ label: String, hint: String? = nil, action: @escaping () -> Void) {
         self.label = label
         self.hint  = hint
-        self.isSeparator = false
         self.action = action
     }
 
-    init(_ label: String, hint: String? = nil) {
-        self.label = label
-        self.hint  = hint
-        self.isSeparator = false
-        self.action = nil
-    }
-
-    private init(separator: Bool) {
+    private init() {
         self.label = ""
         self.hint  = nil
-        self.isSeparator = true
         self.action = nil
     }
 
-    static let separator = MenuItem(separator: true)
+    private init(quitLabel: String) {
+        self.label = quitLabel
+        self.hint  = nil
+        self.action = nil
+    }
+
+    static let separator = MenuItem()
+    static func quit(_ label: String = "Quit") -> MenuItem { MenuItem(quitLabel: label) }
 }
 
 // MARK: - Menu
 
 /// Generic arrow-key navigable menu.
-/// Returns the selected index, or nil if the user pressed q/ESC.
 final class Menu {
     private let terminal: Terminal
     private let title: String
@@ -47,10 +47,9 @@ final class Menu {
         self.items    = items
     }
 
-    /// Blocks until user picks an item or quits.
-    /// If the selected item has an action closure, executes it and loops.
-    /// Otherwise returns the selected index.
-    func run() -> Int? {
+    /// Blocks until user quits (q/ESC or Quit item).
+    /// Items with action closures execute and loop back to the menu.
+    func run() {
         var selected = 0
 
         while true {
@@ -63,13 +62,13 @@ final class Menu {
             case .down:
                 selected = nextSelectable(from: selected)
             case .enter:
-                if let action = items[selected].action {
-                    action()
-                } else {
-                    return nil
-                }
+				if let action = items[selected].action {
+					action()
+				} else {
+					return
+				}
             case .quit, .escape:
-                return nil
+                return
             default:
                 break
             }
@@ -147,7 +146,7 @@ final class Menu {
         }
 
         terminal.writeln()
-        let footer = "  ↑/↓ navigate   Enter select   q/ESC back"
+        let footer = "  ↑/↓ navigate   Enter select   q/ESC back or quit"
         terminal.write(ANSI.dim + ANSI.fgWhite)
         terminal.write(cols >= footer.count + 2 ? footer : "  ↑/↓  Enter  q/ESC")
         terminal.write(ANSI.reset)

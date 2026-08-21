@@ -17,10 +17,10 @@ final class MainScreen {
             MenuItem("gsync",  hint: "git sync")      { GsyncScreen(terminal: self.terminal, runner: self.runner).run() },
             MenuItem("jcloud", hint: "document cloud") { JcloudScreen(terminal: self.terminal, runner: self.runner).run() },
             .separator,
-            MenuItem("Quit"),
+            .quit(),
         ]
         let menu = Menu(terminal: terminal, title: "infra-hub v\(hubVersion)", items: items)
 
-		while menu.run() != nil {}
+        menu.run()
     }
 }

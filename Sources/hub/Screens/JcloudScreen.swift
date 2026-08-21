@@ -20,12 +20,14 @@ final class JcloudScreen {
             MenuItem("publish", hint: "publish tools")   { self.publish() },
             MenuItem("update",  hint: "update jcloud")   { self.update() },
             .separator,
-            MenuItem("doc",     hint: "manage document") { self.doc() }
+            MenuItem("doc",     hint: "manage document") { self.doc() },
+			.separator,
+			.quit("Back")
         ]
         let version = binaryVersion(bin)
         let menu = Menu(terminal: terminal, title: "jcloud v\(version)", items: items)
 
-        while menu.run() != nil {}
+        menu.run()
     }
 
     // MARK: - Command builders
@@ -38,11 +40,13 @@ final class JcloudScreen {
 			MenuItem("clear",    hint: "clear channel")         { self.channelClear() },
 			.separator,
 			MenuItem("slot-get", hint: "get a channel slot")    { self.channelSlotGet() },
-			MenuItem("slot-set", hint: "set a channel slot")    { self.channelSlotSet() }
+			MenuItem("slot-set", hint: "set a channel slot")    { self.channelSlotSet() },
+			.separator,
+			.quit("Back")
 		]
 		let menu = Menu(terminal: terminal, title: "jcloud channel", items: items)
 
-		while menu.run() != nil {}
+		menu.run()
 	}
 	
 	private func channelCreate() {
@@ -117,10 +121,12 @@ final class JcloudScreen {
 			MenuItem("read",         hint: "read a document by ID") { self.docRead() },
 			MenuItem("update",       hint: "update a document")     { self.docUpdate() },
 			MenuItem("delete",       hint: "delete a document")     { self.docDelete() },
+			.separator,
+			.quit("Back")
 		]
 		let menu = Menu(terminal: terminal, title: "jcloud doc", items: items)
 
-		while menu.run() != nil {}
+		menu.run()
 	}
 	private func docCreate() {
 		let form = Form(

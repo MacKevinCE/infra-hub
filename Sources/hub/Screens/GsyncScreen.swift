@@ -25,11 +25,13 @@ final class GsyncScreen {
             MenuItem("sync",     hint: "sync [snapshotId]")        { self.sync() },
             .separator,
             MenuItem("ignore",   hint: "manage ignore patterns")   { self.ignore() },
+			.separator,
+			.quit("Back")
         ]
         let version = binaryVersion(bin)
         let menu = Menu(terminal: terminal, title: "gsync v\(version)", items: items)
 
-        while menu.run() != nil {}
+        menu.run()
     }
 
     // MARK: - Command builders
@@ -97,10 +99,12 @@ final class GsyncScreen {
             MenuItem("show",   hint: "show current patterns") { self.ignoreShow() },
             MenuItem("add",    hint: "add modified files or pattern") { self.ignoreAdd() },
             MenuItem("remove", hint: "remove a pattern") { self.ignoreRemove() },
+			.separator,
+			.quit("Back")
         ]
         let menu = Menu(terminal: terminal, title: "gsync ignore", items: items)
 
-        while menu.run() != nil {}
+        menu.run()
     }
 
     private func ignoreShow() {
