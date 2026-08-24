@@ -54,7 +54,22 @@ final class JcloudScreen {
     }
     
     private func channelCreate() {
-        runner.run(binary: bin, arguments: ["channel", "create"])
+        let configFile = "\(NSHomeDirectory())/.config/b2c-gsync/channel"
+        if let existing = try? String(contentsOfFile: configFile, encoding: .utf8),
+           !existing.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            let id = existing.trimmingCharacters(in: .whitespacesAndNewlines)
+            // Has existing channel — ask confirmation via menu
+            let items: [MenuItem] = [
+                MenuItem("Yes, replace it", hint: "create new channel") {
+                    self.runner.run(binary: bin, arguments: ["channel", "create"])
+                },
+                MenuItem("No, keep current", hint: id) {},
+            ]
+            let menu = Menu(terminal: terminal, title: "Channel exists: \(id)", items: items)
+            menu.run()
+        } else {
+            runner.run(binary: bin, arguments: ["channel", "create"])
+        }
     }
 
     private func channelSet() {
