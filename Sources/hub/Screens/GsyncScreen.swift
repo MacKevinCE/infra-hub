@@ -28,6 +28,8 @@ final class GsyncScreen {
             MenuItem("diff",     hint: "preview changes")           { self.diff() },
             MenuItem("sync",     hint: "sync [snapshotId]")        { self.sync() },
             .separator,
+            MenuItem("clone",    hint: "clone repo to another machine") { self.clone() },
+            .separator,
             MenuItem("log",      hint: "show sync history")          { self.log() },
             MenuItem("ignore",   hint: "manage ignore patterns")   { self.ignore() },
             .separator,
@@ -152,6 +154,40 @@ final class GsyncScreen {
         )
         guard let values = form.run() else { return }
         runner.run(binary: bin, arguments: ["ignore", "remove", values[0]])
+    }
+
+    private func clone() {
+        let items: [MenuItem] = [
+            MenuItem("export",        hint: "export repo with .git")    { self.cloneExport(noGit: false) },
+            MenuItem("export no-git", hint: "export files only")        { self.cloneExport(noGit: true) },
+            MenuItem("import",        hint: "import cloned repo")       { self.cloneImport() },
+            .separator,
+            .quit("Back")
+        ]
+        let menu = Menu(terminal: terminal, title: "gsync clone", items: items)
+        menu.run()
+    }
+
+    private func cloneExport(noGit: Bool) {
+        var args = ["clone"]
+        if noGit { args.append("--no-git") }
+        runner.run(binary: bin, arguments: args)
+    }
+
+    private func cloneImport() {
+        let form = Form(
+            terminal: terminal,
+            title: "gsync clone (import)",
+            fields: [
+                FormField("clone ID", placeholder: "leave empty for channel", required: false),
+                FormField("output path (-o)", placeholder: "leave empty for current dir", required: false),
+            ]
+        )
+        guard let values = form.run() else { return }
+        var args = ["clone"]
+        if !values[0].isEmpty { args.append(values[0]) }
+        if !values[1].isEmpty { args += ["-o", values[1]] }
+        runner.run(binary: bin, arguments: args)
     }
 
     private func diff() {
