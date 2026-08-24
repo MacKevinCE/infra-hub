@@ -1,6 +1,6 @@
 import Foundation
 
-let hubVersion = "1.4.0"
+let hubVersion = "1.5.0"
 let minJcloudVersion = "1.3.0"
 let minB2cVersion = "1.8.0"
 let minGsyncVersion = "1.11.0"
