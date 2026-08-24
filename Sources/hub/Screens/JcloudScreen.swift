@@ -120,19 +120,16 @@ final class JcloudScreen {
             return
         }
 
-        var selectedSlot: String?
-        let items: [MenuItem] = slots.map { slot in
+        var items: [MenuItem] = slots.map { slot in
             MenuItem(slot.name, hint: slot.id) {
-                selectedSlot = slot.name
+                self.runner.run(binary: bin, arguments: ["channel", "slot-get", slot.name])
             }
-        } + [.separator, .quit("Back")]
-
+        }
+        items.append(.separator)
+        items.append(.quit("Back"))
+		
         let menu = Menu(terminal: terminal, title: "jcloud channel slot-get", items: items)
         menu.run()
-
-        if let slot = selectedSlot {
-            runner.run(binary: bin, arguments: ["channel", "slot-get", slot])
-        }
     }
 
     private func channelSlotSet() {
@@ -154,39 +151,39 @@ final class JcloudScreen {
         }
 
         // Show existing slots + option to create new
-        var selectedSlot: String?
         var items: [MenuItem] = slots.map { slot in
             MenuItem(slot.name, hint: slot.id) {
-                selectedSlot = slot.name
+                self.channelSlotSetID(slot: slot.name)
             }
         }
         items.append(.separator)
-        items.append(MenuItem("+ new slot") { selectedSlot = "__new__" })
+        items.append(MenuItem("+ new slot") { self.channelSlotSetID(slot: "__new__") })
         items.append(.separator)
         items.append(.quit("Back"))
 
         let menu = Menu(terminal: terminal, title: "jcloud channel slot-set — select slot", items: items)
         menu.run()
-
-        guard var slot = selectedSlot else { return }
-
-        if slot == "__new__" {
+    }
+	
+    private func channelSlotSetID(slot: String) {
+        var slotName = slot
+        if slotName == "__new__" {
             let form = Form(
                 terminal: terminal,
                 title: "jcloud channel slot-set",
                 fields: [FormField("slot name")]
             )
             guard let values = form.run() else { return }
-            slot = values[0]
+            slotName = values[0]
         }
 
         let form = Form(
             terminal: terminal,
-            title: "jcloud channel slot-set [\(slot)]",
+            title: "jcloud channel slot-set [\(slotName)]",
             fields: [FormField("document ID")]
         )
         guard let values = form.run() else { return }
-        runner.run(binary: bin, arguments: ["channel", "slot-set", slot, values[0]])
+        runner.run(binary: bin, arguments: ["channel", "slot-set", slotName, values[0]])
     }
 
     // MARK: - Helpers
