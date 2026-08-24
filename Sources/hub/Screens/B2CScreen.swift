@@ -43,9 +43,57 @@ final class B2CScreen {
         )
         guard let values = form.run() else { return }
         let path = values[0].isEmpty ? "." : values[0]
-        var args = ["upload", path]
-        if !values[1].isEmpty { args += ["-k", values[1]] }
-        runner.run(binary: bin, arguments: args)
+
+        // Estimate chunks and confirm if large
+        let chunkKB = Int(values[1]) ?? 900
+        let size = pathSize(path)
+        let parts = estimateChunks(bytes: size, chunkKB: chunkKB)
+
+        if parts > 10 {
+            let sizeMB = String(format: "%.1f", Double(size) / 1_048_576)
+            let items: [MenuItem] = [
+                MenuItem("Yes, upload", hint: "\(sizeMB) MB, ~\(parts) parts") {
+                    var args = ["upload", path]
+                    if !values[1].isEmpty { args += ["-k", values[1]] }
+                    self.runner.run(binary: bin, arguments: args)
+                },
+                .quit("Cancel"),
+            ]
+            let menu = Menu(terminal: terminal, title: "Large upload (~\(parts) parts)", items: items)
+            menu.run()
+        } else {
+            var args = ["upload", path]
+            if !values[1].isEmpty { args += ["-k", values[1]] }
+            runner.run(binary: bin, arguments: args)
+        }
+    }
+
+    private func pathSize(_ path: String) -> Int {
+        let fm = FileManager.default
+        var isDir: ObjCBool = false
+        guard fm.fileExists(atPath: path, isDirectory: &isDir) else { return 0 }
+
+        if !isDir.boolValue {
+            return (try? fm.attributesOfItem(atPath: path)[.size] as? Int) ?? 0
+        }
+
+        var total = 0
+        if let enumerator = fm.enumerator(atPath: path) {
+            while let file = enumerator.nextObject() as? String {
+                if let attrs = try? fm.attributesOfItem(atPath: "\(path)/\(file)"),
+                   let size = attrs[.size] as? Int {
+                    total += size
+                }
+            }
+        }
+        return total
+    }
+
+    private func estimateChunks(bytes: Int, chunkKB: Int) -> Int {
+        let compressed = Double(bytes) * 0.5
+        let base64 = compressed * 4.0 / 3.0
+        let chunkSize = Double(chunkKB) * 1024.0
+        return max(1, Int(ceil(base64 / chunkSize)))
     }
 
     private func list() {
