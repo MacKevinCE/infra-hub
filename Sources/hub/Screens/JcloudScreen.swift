@@ -122,12 +122,12 @@ final class JcloudScreen {
 
         var items: [MenuItem] = slots.map { slot in
             MenuItem(slot.name, hint: slot.id) {
-                self.runner.run(binary: bin, arguments: ["channel", "slot-get", slot.name])
+                self.showSlotId(name: slot.name, id: slot.fullId)
             }
         }
         items.append(.separator)
         items.append(.quit("Back"))
-		
+
         let menu = Menu(terminal: terminal, title: "jcloud channel slot-get", items: items)
         menu.run()
     }
@@ -186,11 +186,32 @@ final class JcloudScreen {
         runner.run(binary: bin, arguments: ["channel", "slot-set", slotName, values[0]])
     }
 
+    private func showSlotId(name: String, id: String) {
+        terminal.suspendRawMode()
+        terminal.clearScreen()
+        let cols = terminal.size().cols
+        let sepWidth = max(10, min(cols - 2, 60))
+        terminal.write(ANSI.bold + ANSI.fgCyan)
+        terminal.writeln("  \(name)")
+        terminal.write(ANSI.reset)
+        terminal.writeln(String(repeating: "─", count: sepWidth))
+        terminal.writeln()
+        terminal.writeln("  \(id)")
+        terminal.writeln()
+        terminal.write(ANSI.dim)
+        terminal.write("  Press any key to return to menu…")
+        terminal.write(ANSI.reset)
+        terminal.writeln()
+        terminal.resumeRawMode()
+        _ = terminal.readKey()
+    }
+
     // MARK: - Helpers
 
     private struct SlotInfo {
         let name: String
-        let id: String
+        let fullId: String
+        var id: String { String(fullId.prefix(12)) + "…" }
     }
 
     private func loadSlotNames() -> [SlotInfo]? {
@@ -217,7 +238,7 @@ final class JcloudScreen {
         return slots.compactMap { key, value in
             guard let entry = value as? [String: Any],
                   let id = entry["id"] as? String else { return nil }
-            return SlotInfo(name: key, id: String(id.prefix(12)) + "…")
+            return SlotInfo(name: key, fullId: id)
         }.sorted { $0.name < $1.name }
     }
 
