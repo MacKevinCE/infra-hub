@@ -37,12 +37,13 @@ final class B2CScreen {
             terminal: terminal,
             title: "b2c upload",
             fields: [
-                FormField("file or directory", placeholder: "path to file or directory"),
+                FormField("file or directory", placeholder: "leave empty for current dir", required: false),
                 FormField("chunk size (-k KB)", placeholder: "e.g. 512", required: false),
             ]
         )
         guard let values = form.run() else { return }
-        var args = ["upload", values[0]]
+        let path = values[0].isEmpty ? "." : values[0]
+        var args = ["upload", path]
         if !values[1].isEmpty { args += ["-k", values[1]] }
         runner.run(binary: bin, arguments: args)
     }
