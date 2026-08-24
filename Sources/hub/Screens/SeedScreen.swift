@@ -28,15 +28,21 @@ final class SeedScreen {
     }
 
     private func publish() {
-        let form = Form(
+        let allTools = ["b2c", "gsync", "hub", "jcloud", "seed"]
+        var checkItems: [ChecklistItem] = []
+
+        for tool in allTools {
+            let path = findBinary(tool)
+            let ver = binaryVersion(path)
+            checkItems.append(ChecklistItem(tool, hint: "v\(ver)", selected: true))
+        }
+
+        let checklist = Checklist(
             terminal: terminal,
-            title: "seed publish",
-            fields: [
-                FormField("tools (space-separated)", placeholder: "e.g. b2c gsync jcloud hub seed"),
-            ]
+            title: "seed publish — select tools",
+            items: checkItems
         )
-        guard let values = form.run() else { return }
-        let tools = values[0].split(separator: " ").map(String.init)
-        runner.run(binary: bin, arguments: ["publish"] + tools)
+        guard let selected = checklist.run(), !selected.isEmpty else { return }
+        runner.run(binary: bin, arguments: ["publish"] + selected)
     }
 }
