@@ -34,7 +34,7 @@ final class SeedScreen {
         for tool in allTools {
             let path = findBinary(tool)
             let ver = binaryVersion(path)
-            checkItems.append(ChecklistItem(tool, hint: "v\(ver)", selected: true))
+            checkItems.append(ChecklistItem(tool, hint: "v\(ver)", selected: false))
         }
 
         let checklist = Checklist(
