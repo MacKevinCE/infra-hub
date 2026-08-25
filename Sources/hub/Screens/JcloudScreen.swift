@@ -54,22 +54,12 @@ final class JcloudScreen {
     }
     
     private func channelCreate() {
-        let configFile = "\(NSHomeDirectory())/.config/b2c-gsync/channel"
-        if let existing = try? String(contentsOfFile: configFile, encoding: .utf8),
-           !existing.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            let id = existing.trimmingCharacters(in: .whitespacesAndNewlines)
-            // Has existing channel — ask confirmation via menu
-            let items: [MenuItem] = [
-                MenuItem("Yes, replace it", hint: "create new channel") {
-                    self.runner.run(binary: bin, arguments: ["channel", "create"])
-                },
-                .quit("No, keep current"),
-            ]
-            let menu = Menu(terminal: terminal, title: "Channel exists: \(id)", items: items)
-            menu.run()
-        } else {
-            runner.run(binary: bin, arguments: ["channel", "create"])
-        }
+        InteractiveRunner.run(
+            binary: bin,
+            arguments: ["channel", "create"],
+            terminal: terminal,
+            runner: runner
+        )
     }
 
     private func channelSet() {
@@ -85,21 +75,12 @@ final class JcloudScreen {
     }
     
     private func channelClear() {
-        let configFile = "\(NSHomeDirectory())/.config/b2c-gsync/channel"
-        guard let existing = try? String(contentsOfFile: configFile, encoding: .utf8),
-              !existing.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            runner.run(binary: bin, arguments: ["channel", "clear"])
-            return
-        }
-        let id = existing.trimmingCharacters(in: .whitespacesAndNewlines)
-        let items: [MenuItem] = [
-            MenuItem("Yes, clear it") {
-                self.runner.run(binary: bin, arguments: ["channel", "clear"])
-            },
-            .quit("No, keep current"),
-        ]
-        let menu = Menu(terminal: terminal, title: "Clear channel: \(id)?", items: items)
-        menu.run()
+        InteractiveRunner.run(
+            binary: bin,
+            arguments: ["channel", "clear"],
+            terminal: terminal,
+            runner: runner
+        )
     }
 
     private func channelSlotGet() {
